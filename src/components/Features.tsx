@@ -1,6 +1,7 @@
 
 import { Users, ShieldCheck, Apple } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRef } from "react";
 
 const Features = () => {
@@ -30,6 +31,15 @@ const Features = () => {
     }
   ];
 
+  const pricingData = [
+    { feature: "Price/mth", free: "Free", dedicated: "$3", expert: "$5" },
+    { feature: "Rated articles", free: "100", dedicated: "1,000", expert: "Unlimited" },
+    { feature: "Article history", free: "7 days", dedicated: "30 days", expert: "1 year" },
+    { feature: "Basic trends", free: "✓", dedicated: "✓", expert: "✓" },
+    { feature: "Advanced trends", free: "✗", dedicated: "✓", expert: "✓" },
+    { feature: "Feedback", free: "✗", dedicated: "✗", expert: "✓" }
+  ];
+
   return (
     <section className="py-20 px-4 bg-white">
       <div className="container mx-auto max-w-6xl">
@@ -43,7 +53,7 @@ const Features = () => {
         </div>
 
         {/* Features Carousel */}
-        <div className="relative">
+        <div className="relative mb-20">
           <div 
             ref={scrollRef}
             className="flex overflow-x-auto gap-8 pb-8 scroll-smooth snap-x snap-mandatory"
@@ -99,8 +109,44 @@ const Features = () => {
           </div>
         </div>
 
+        {/* Choose Your Version Section */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-slate-900 mb-4">
+            Choose your version
+          </h2>
+          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+            Select the plan that best fits your news consumption needs
+          </p>
+        </div>
+
+        {/* Pricing Table */}
+        <div className="max-w-4xl mx-auto mb-20">
+          <Card className="overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50">
+                  <TableHead className="font-bold text-slate-900">Feature</TableHead>
+                  <TableHead className="font-bold text-slate-900 text-center">Free</TableHead>
+                  <TableHead className="font-bold text-slate-900 text-center">Dedicated</TableHead>
+                  <TableHead className="font-bold text-slate-900 text-center">Expert</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pricingData.map((row, index) => (
+                  <TableRow key={index} className="border-b">
+                    <TableCell className="font-medium text-slate-900">{row.feature}</TableCell>
+                    <TableCell className="text-center">{row.free}</TableCell>
+                    <TableCell className="text-center">{row.dedicated}</TableCell>
+                    <TableCell className="text-center">{row.expert}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+
         {/* Bottom CTA */}
-        <div className="text-center mt-20">
+        <div className="text-center">
           <h3 className="text-3xl font-bold text-slate-900 mb-4">
             Ready to upgrade your news diet?
           </h3>
