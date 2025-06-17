@@ -11,8 +11,8 @@ const Features = () => {
       icon: Users,
       headline: "News rated by AI committee...and you",
       description: "Our advanced AI system combines multiple credibility signals with community feedback to provide comprehensive trust scores for news articles.",
-      color: "bg-blue-50",
-      iconColor: "text-blue-600"
+      color: "bg-orange-50",
+      iconColor: "text-orange-600"
     },
     {
       icon: ShieldCheck,
@@ -72,7 +72,7 @@ const Features = () => {
                     <div 
                       key={i}
                       className={`h-2 w-8 rounded-full transition-all duration-300 ${
-                        i === index ? 'bg-blue-600' : 'bg-slate-200'
+                        i === index ? 'bg-orange-600' : 'bg-slate-200'
                       }`}
                     />
                   ))}
@@ -86,7 +86,7 @@ const Features = () => {
             {features.map((_, index) => (
               <button
                 key={index}
-                className="w-3 h-3 rounded-full bg-slate-300 hover:bg-blue-600 transition-colors duration-200"
+                className="w-3 h-3 rounded-full bg-slate-300 hover:bg-orange-600 transition-colors duration-200"
                 onClick={() => {
                   const cardWidth = 400 + 32; // card width + gap
                   scrollRef.current?.scrollTo({
@@ -108,10 +108,10 @@ const Features = () => {
             Join thousands who are already making more informed media choices
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+            <button className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
               Get Started Free
             </button>
-            <button className="text-blue-600 hover:text-blue-700 font-semibold text-lg">
+            <button className="text-orange-600 hover:text-orange-700 font-semibold text-lg">
               Learn More →
             </button>
           </div>
