@@ -15,7 +15,7 @@ const Hero = () => {
       }}
     >
       {/* Orange translucent overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/80 to-orange-100/60"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/90 to-orange-100/80"></div>
       <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-8">
           {/* Logo and Brand */}
