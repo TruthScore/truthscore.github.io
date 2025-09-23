@@ -1,11 +1,22 @@
 
 import { Scale, Chrome, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import truthscoreScales from "@/assets/truthscore_scales.png";
 
 const Hero = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-orange-50 py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <section 
+      className="relative overflow-hidden py-20 px-4"
+      style={{
+        backgroundImage: `url(${truthscoreScales})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Orange translucent overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/80 to-orange-100/60"></div>
+      <div className="container mx-auto max-w-6xl relative z-10">
         <div className="text-center space-y-8">
           {/* Logo and Brand */}
           <div className="flex items-center justify-center space-x-3 mb-6">
