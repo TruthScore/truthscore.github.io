@@ -16,6 +16,17 @@
     <meta name="twitter:site" content="@truthscore_ai" />
     <meta name="twitter:image" content="/og-image.png" />
 
+    <script>
+      // SPA routing: restore path encoded by 404.html
+      (function() {
+        var p = new URLSearchParams(window.location.search).get('p');
+        if (p) {
+          var h = new URLSearchParams(window.location.search).get('h');
+          window.history.replaceState(null, null, p + (h ? '#' + h : ''));
+        }
+      })();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
