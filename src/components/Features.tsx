@@ -1,169 +1,171 @@
+import { Chrome, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-import { Users, ShieldCheck, Apple } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useRef } from "react";
+// ── Section 1: How it works ───────────────────────────────────────────────────
+
+const HOW_IT_WORKS = [
+  {
+    eyebrow: "01",
+    title: "Scored by AI, verified by community",
+    body: "Our engine analyses source reputation, factual consistency, and linguistic signals. Community members with Expert plans can submit corrections — improving every score over time.",
+    visual: (
+      <div className="bg-card border border-border rounded-lg p-5 space-y-3 text-sm">
+        <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Score breakdown</p>
+        {[["AI analysis", "0.3s"], ["Source lookup", "0.1s"], ["Community review", "ongoing"]].map(([step, time]) => (
+          <div key={step} className="flex items-center justify-between">
+            <span className="text-foreground">{step}</span>
+            <span className="font-mono text-xs text-muted-foreground">{time}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    eyebrow: "02",
+    title: "Transparency, not censorship",
+    body: "TruthScore never hides, blocks, or filters articles. It surfaces information so you can decide for yourself — because informed readers are better than filtered ones.",
+    visual: (
+      <div className="bg-card border border-border rounded-lg p-5 space-y-2 text-sm">
+        <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">What we show</p>
+        {["Score + reasoning", "Source track record", "Known bias signals", "Community notes"].map((item) => (
+          <div key={item} className="flex items-center gap-2">
+            <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span className="text-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+  {
+    eyebrow: "03",
+    title: "Works where you already read news",
+    body: "The Chrome extension overlays scores directly on articles — no tab switching. The iOS app brings the same experience to mobile Safari and your news reader of choice.",
+    visual: (
+      <div className="bg-card border border-border rounded-lg p-5 space-y-2 text-sm">
+        <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Compatible with</p>
+        {["Chrome Extension", "iOS App (Safari)", "Firefox Add-on (coming soon)"].map((item) => (
+          <div key={item} className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+            <span className="text-foreground">{item}</span>
+          </div>
+        ))}
+      </div>
+    ),
+  },
+];
+
+// ── Section 2: Pricing ────────────────────────────────────────────────────────
+
+const PLANS = [
+  {
+    name: "Free",
+    price: null,
+    features: ["100 rated articles/mo", "7-day article history", "Basic trends", "Chrome + iOS"],
+    recommended: false,
+  },
+  {
+    name: "Dedicated",
+    price: "$3",
+    features: ["1,000 rated articles/mo", "30-day article history", "Advanced trends", "Chrome + iOS"],
+    recommended: true,
+  },
+  {
+    name: "Expert",
+    price: "$5",
+    features: ["Unlimited articles", "1-year article history", "Advanced trends", "Community feedback"],
+    recommended: false,
+  },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 const Features = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const features = [
-    {
-      icon: Users,
-      headline: "News rated by AI committee...and you",
-      description: "Our advanced AI system combines multiple credibility signals with community feedback to provide comprehensive trust scores for news articles.",
-      color: "bg-orange-50",
-      iconColor: "text-orange-600"
-    },
-    {
-      icon: ShieldCheck,
-      headline: "Not telling you what to consume",
-      description: "We don't filter or censor content. Instead, we provide transparency tools so you can make your own informed decisions about news sources.",
-      color: "bg-green-50",
-      iconColor: "text-green-600"
-    },
-    {
-      icon: Apple,
-      headline: "You like nutritious food. Why not nutritious media?",
-      description: "Just like nutrition labels help you choose healthy food, TruthScore helps you identify high-quality, factual news content.",
-      color: "bg-purple-50",
-      iconColor: "text-purple-600"
-    }
-  ];
-
-  const pricingData = [
-    { feature: "Price/mth", free: "Free", dedicated: "$3", expert: "$5" },
-    { feature: "Rated articles", free: "100", dedicated: "1,000", expert: "Unlimited" },
-    { feature: "Article history", free: "7 days", dedicated: "30 days", expert: "1 year" },
-    { feature: "Basic trends", free: "✓", dedicated: "✓", expert: "✓" },
-    { feature: "Advanced trends", free: "✗", dedicated: "✓", expert: "✓" },
-    { feature: "Feedback", free: "✗", dedicated: "✗", expert: "✓" }
-  ];
-
   return (
-    <section className="py-20 px-4 bg-white">
-      <div className="container mx-auto max-w-6xl">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            How TruthScore Works
-          </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Scroll through our key features to understand how we're revolutionizing news consumption
-          </p>
-        </div>
+    <>
+      {/* Section 1 — How it works */}
+      <section id="features">
+        {HOW_IT_WORKS.map((item, i) => (
+          <div key={item.eyebrow} className="border-t border-border py-16 px-4">
+            <div className="container mx-auto max-w-6xl">
+              <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center ${i % 2 === 1 ? "lg:[direction:rtl]" : ""}`}>
+                <div className={`space-y-4 ${i % 2 === 1 ? "lg:[direction:ltr]" : ""}`}>
+                  <p className="font-mono text-xs text-muted-foreground">{item.eyebrow}</p>
+                  <h2 className="text-2xl md:text-3xl font-semibold text-foreground leading-snug">
+                    {item.title}
+                  </h2>
+                  <p className="text-muted-foreground leading-relaxed">{item.body}</p>
+                </div>
+                <div className={`${i % 2 === 1 ? "lg:[direction:ltr]" : ""}`}>
+                  {item.visual}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </section>
 
-        {/* Features Carousel */}
-        <div className="relative mb-20">
-          <div 
-            ref={scrollRef}
-            className="flex overflow-x-auto gap-8 pb-8 scroll-smooth snap-x snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {features.map((feature, index) => (
-              <Card 
-                key={index}
-                className="min-w-[350px] md:min-w-[400px] p-8 snap-center hover:shadow-xl transition-all duration-300 border-0 shadow-lg"
+      {/* Section 2 — Pricing */}
+      <section id="pricing" className="border-t border-border py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-12 space-y-2">
+            <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Pricing</p>
+            <h2 className="text-3xl font-semibold text-foreground">Choose your version</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {PLANS.map((plan) => (
+              <div
+                key={plan.name}
+                className={`bg-card rounded-lg p-6 space-y-6 border ${
+                  plan.recommended ? "ring-1 ring-primary border-primary/30" : "border-border"
+                }`}
               >
-                <div className={`w-16 h-16 ${feature.color} rounded-2xl flex items-center justify-center mb-6`}>
-                  <feature.icon className={`h-8 w-8 ${feature.iconColor}`} />
+                <div className="space-y-1">
+                  <p className="font-semibold text-foreground">{plan.name}</p>
+                  <p className="font-mono text-2xl text-foreground">
+                    {plan.price ?? <span className="text-muted-foreground text-lg">Free</span>}
+                    {plan.price && <span className="text-sm text-muted-foreground font-sans font-normal"> / mo</span>}
+                  </p>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight">
-                  {feature.headline}
-                </h3>
-                
-                <p className="text-slate-600 text-lg leading-relaxed">
-                  {feature.description}
-                </p>
 
-                {/* Progress Indicator */}
-                <div className="flex space-x-2 mt-8">
-                  {features.map((_, i) => (
-                    <div 
-                      key={i}
-                      className={`h-2 w-8 rounded-full transition-all duration-300 ${
-                        i === index ? 'bg-orange-600' : 'bg-slate-200'
-                      }`}
-                    />
+                <ul className="space-y-2.5">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">{f}</span>
+                    </li>
                   ))}
-                </div>
-              </Card>
-            ))}
-          </div>
+                </ul>
 
-          {/* Scroll Indicators */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {features.map((_, index) => (
-              <button
-                key={index}
-                className="w-3 h-3 rounded-full bg-slate-300 hover:bg-orange-600 transition-colors duration-200"
-                onClick={() => {
-                  const cardWidth = 400 + 32; // card width + gap
-                  scrollRef.current?.scrollTo({
-                    left: index * cardWidth,
-                    behavior: 'smooth'
-                  });
-                }}
-              />
+                <Button
+                  variant={plan.recommended ? "default" : "outline"}
+                  className={`w-full ${plan.recommended ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
+                  size="sm"
+                >
+                  Get started
+                </Button>
+              </div>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Choose Your Version Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
-            Choose your version
+      {/* Section 3 — Bottom CTA */}
+      <section className="border-t border-border py-24 px-4">
+        <div className="container mx-auto max-w-6xl text-center space-y-6">
+          <h2 className="text-3xl md:text-4xl font-semibold text-foreground">
+            Start reading with more confidence.
           </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Select the plan that best fits your news consumption needs
-          </p>
-        </div>
-
-        {/* Pricing Table */}
-        <div className="max-w-4xl mx-auto mb-20">
-          <Card className="overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50">
-                  <TableHead className="font-bold text-slate-900">Feature</TableHead>
-                  <TableHead className="font-bold text-slate-900 text-center">Free</TableHead>
-                  <TableHead className="font-bold text-slate-900 text-center">Dedicated</TableHead>
-                  <TableHead className="font-bold text-slate-900 text-center">Expert</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pricingData.map((row, index) => (
-                  <TableRow key={index} className="border-b">
-                    <TableCell className="font-medium text-slate-900">{row.feature}</TableCell>
-                    <TableCell className="text-center">{row.free}</TableCell>
-                    <TableCell className="text-center">{row.dedicated}</TableCell>
-                    <TableCell className="text-center">{row.expert}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
-        </div>
-
-        {/* Bottom CTA */}
-        <div className="text-center">
-          <h3 className="text-3xl font-bold text-slate-900 mb-4">
-            Ready to upgrade your news diet?
-          </h3>
-          <p className="text-lg text-slate-600 mb-8">
-            Join thousands who are already making more informed media choices
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-              Get Started Free
-            </button>
-            <button className="text-orange-600 hover:text-orange-700 font-semibold text-lg">
-              Learn More →
-            </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
+              <Chrome className="h-4 w-4" />
+              Add to Chrome — Free
+            </Button>
           </div>
+          <p className="font-mono text-xs text-muted-foreground">Also available on iOS</p>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
