@@ -1,73 +1,54 @@
-# Welcome to your Lovable project
+# TruthScore.ai — Website
 
-## Project info
+Marketing and landing page for [TruthScore.ai](https://truthscore.ai) — the credibility scoring tool for news articles, available as a Chrome Extension and iOS App.
 
-**URL**: https://lovable.dev/projects/e47198e4-116f-4d88-a1eb-75b670bf51eb
+## About TruthScore
 
-## How can I edit this code?
+TruthScore gives every news article a credibility score — built by AI, refined by community, readable in seconds. Think of it as a nutrition label for news: transparent, unbiased, and always available where you read.
 
-There are several ways of editing your application.
+- **Chrome Extension** — overlays credibility scores directly on articles as you browse
+- **iOS App** — brings the same scoring to mobile Safari and your news reader
+- **AI Engine** — analyses source reputation, factual consistency, and linguistic signals; improved continuously by Expert-tier community feedback
 
-**Use Lovable**
+## Plans
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e47198e4-116f-4d88-a1eb-75b670bf51eb) and start prompting.
+| | Free | Dedicated ($3/mo) | Expert ($5/mo) |
+|---|---|---|---|
+| Rated articles | 100/mo | 1,000/mo | Unlimited |
+| Article history | 7 days | 30 days | 1 year |
+| Advanced trends | — | ✓ | ✓ |
+| Community feedback | — | — | ✓ |
 
-Changes made via Lovable will be committed automatically to this repo.
+## This repository
 
-**Use your preferred IDE**
+This repo contains the public-facing website: landing page, pricing, and changelog.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Stack:** Vite · React · TypeScript · Tailwind CSS · shadcn/ui
+**Fonts:** Space Grotesk · JetBrains Mono
+**Deployed to:** GitHub Pages via GitHub Actions
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Local development
 
-Follow these steps:
+Requires [Bun](https://bun.sh).
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+bun install       # install dependencies
+bun run dev       # start dev server at localhost:8080
+bun run build     # production build → dist/
+bun run preview   # preview production build locally
+bun run lint      # lint
 ```
 
-**Edit a file directly in GitHub**
+### Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Pushes to `main` automatically deploy to GitHub Pages via `.github/workflows/deploy.yml`.
 
-**Use GitHub Codespaces**
+To enable: go to **Settings → Pages** in the GitHub repo and set the source to **GitHub Actions**.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Contributing
 
-## What technologies are used for this project?
+Issues and pull requests are welcome. Please open an issue before starting significant work so we can discuss the approach.
 
-This project is built with:
+## License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/e47198e4-116f-4d88-a1eb-75b670bf51eb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+© TruthScore.ai. All rights reserved.
