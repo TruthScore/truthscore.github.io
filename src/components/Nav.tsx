@@ -1,5 +1,5 @@
 import { Scale, Menu } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -7,7 +7,22 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+function useScrollTo() {
+  const navigate = useNavigate();
+
+  return (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate(`/#${id}`);
+    }
+  };
+}
+
 const Nav = () => {
+  const scrollTo = useScrollTo();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 h-16 backdrop-blur-sm bg-background/80 border-b border-border">
       <div className="container mx-auto max-w-6xl h-full flex items-center justify-between px-4">
@@ -19,12 +34,18 @@ const Nav = () => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-8">
-          <Link to="/#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={() => scrollTo("features")}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Features
-          </Link>
-          <Link to="/#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+          </button>
+          <button
+            onClick={() => scrollTo("pricing")}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             Pricing
-          </Link>
+          </button>
           <Link to="/changelog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Changelog
           </Link>
@@ -47,12 +68,18 @@ const Nav = () => {
           </SheetTrigger>
           <SheetContent side="right" className="w-64">
             <div className="flex flex-col gap-6 pt-8">
-              <Link to="/#features" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              <button
+                onClick={() => scrollTo("features")}
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors text-left"
+              >
                 Features
-              </Link>
-              <Link to="/#pricing" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+              </button>
+              <button
+                onClick={() => scrollTo("pricing")}
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors text-left"
+              >
                 Pricing
-              </Link>
+              </button>
               <Link to="/changelog" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Changelog
               </Link>
