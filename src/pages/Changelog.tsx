@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 // TODO: Replace CHANGELOG_DATA with useQuery fetch from engine backend
 
@@ -174,6 +175,8 @@ const Changelog = () => {
           ))}
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
