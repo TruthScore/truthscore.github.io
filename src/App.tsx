@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Changelog from "./pages/Changelog";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import Methodology from "./pages/Methodology";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/methodology" element={<Methodology />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
