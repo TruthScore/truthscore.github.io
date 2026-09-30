@@ -11,7 +11,7 @@ const Privacy = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Privacy Policy</h1>
-          <p className="text-muted-foreground">Last updated: 5 April 2026</p>
+          <p className="text-muted-foreground">Last updated: 30 September 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -34,6 +34,35 @@ const Privacy = () => {
               If you are simply browsing this marketing website without creating an account, we do not
               collect, store, or process any personal data about you. We do not use cookies, analytics
               trackers, or fingerprinting on this site.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">Anyone using the Chrome Extension or app</h3>
+            <p className="text-muted-foreground">
+              Whether or not you have an account, when you ask us to score something we receive:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
+              <li>
+                <span className="text-foreground font-medium">The content you ask us to score</span> — the
+                article's address (URL) and the text the extension reads from the page, or text you
+                paste. If you upload an audio or video file, it is transcribed and the transcript is
+                scored in the same way. The file itself is processed in memory and not stored.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">A device identifier (anonymous use only)</span> — to
+                count the free scores available without an account, the extension computes a device
+                fingerprint from your screen size, time zone, browser and graphics characteristics. Each
+                signal is converted on your device into a one-way hash, and only the hashes are sent to
+                us. The raw values never leave your device. We use it for nothing but counting free
+                scores and preventing abuse of the free allowance, and never for advertising or tracking
+                you across sites. If you later create an account on that device, the identifier is
+                linked to your account so the allowance carries over.
+              </li>
+            </ul>
+            <p className="text-muted-foreground">
+              The extension only reads a page when you ask it to score that page. It checks each page
+              you visit locally, on your device, to see whether it looks like an article, and nothing
+              about that check is sent to us. The extension also stores your sign-in session, settings
+              and a short-lived cache of recent scores in your browser's local extension storage.
             </p>
 
             <h3 className="text-base font-medium text-foreground">Registered users (Chrome Extension &amp; App)</h3>
@@ -88,10 +117,17 @@ const Privacy = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">5. Data sharing &amp; international transfers</h2>
             <p className="text-muted-foreground">
-              We do not sell your personal data. We may share data with:
+              We do not sell your personal data, and we do not use it for advertising. We may share
+              data with:
             </p>
             <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
-              <li>Infrastructure and hosting providers (to operate the service).</li>
+              <li>Infrastructure and hosting providers (to operate the service), including Supabase for accounts and data storage.</li>
+              <li>
+                AI model providers, which process the content you ask us to score in order to produce
+                the score: Anthropic, OpenAI, Google, xAI, Perplexity, and Hugging Face (which hosts
+                our own Verity model). Audio and video are transcribed by OpenAI. We send them the
+                content to be scored, never your name, email address or device identifier.
+              </li>
               <li>Payment processors (to handle billing).</li>
               <li>Law enforcement or regulatory bodies where required by law.</li>
             </ul>
@@ -104,7 +140,10 @@ const Privacy = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">6. Data retention</h2>
             <p className="text-muted-foreground">
-              We retain your account data for as long as your account is active. Usage data used for
+              Scores are cached by article address and reused for anyone who scores the same article,
+              so the article's text and its score are kept independently of who first asked. Anonymous
+              device identifiers are kept while the free allowance they count is in use. We retain your
+              account data for as long as your account is active. Usage data used for
               model training is aggregated and de-identified within 90 days. If you delete your
               account, we will erase your personal data within 30 days, except where retention is
               required by law.
@@ -132,7 +171,25 @@ const Privacy = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">8. Security</h2>
+            <h2 className="text-lg font-semibold text-foreground">8. Chrome Web Store user data policy</h2>
+            <p className="text-muted-foreground">
+              The TruthScore Chrome Extension's use of information complies with the{" "}
+              <a
+                href="https://developer.chrome.com/docs/webstore/program-policies/user-data-faq"
+                className="text-primary hover:underline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Chrome Web Store User Data Policy
+              </a>
+              , including the Limited Use requirements. We use data only to provide and improve the
+              extension's single purpose, which is scoring the articles you ask us to score. We do not
+              transfer it for advertising, sell it, or use it to determine creditworthiness.
+            </p>
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold text-foreground">9. Security</h2>
             <p className="text-muted-foreground">
               We implement appropriate technical and organisational measures to protect your personal
               data, including encryption in transit (TLS) and at rest, access controls, and regular
@@ -141,7 +198,7 @@ const Privacy = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">9. Children</h2>
+            <h2 className="text-lg font-semibold text-foreground">10. Children</h2>
             <p className="text-muted-foreground">
               Our services are not directed at children under the age of 16. We do not knowingly
               collect personal data from children. If you believe a child has provided us with
@@ -150,7 +207,7 @@ const Privacy = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">10. Changes to this policy</h2>
+            <h2 className="text-lg font-semibold text-foreground">11. Changes to this policy</h2>
             <p className="text-muted-foreground">
               We may update this Privacy Policy from time to time. Material changes will be
               communicated via email or an in-app notification. The "Last updated" date at the top
@@ -159,7 +216,7 @@ const Privacy = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-foreground">11. Contact</h2>
+            <h2 className="text-lg font-semibold text-foreground">12. Contact</h2>
             <p className="text-muted-foreground">
               For privacy-related enquiries, contact us at{" "}
               <a href="mailto:privacy@truthscore.ai" className="text-primary hover:underline">
