@@ -1,17 +1,19 @@
 import { Chrome, Check } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { PLANS, DEDICATED_OPENS } from "@/lib/plans";
 
 // ── Section 1: How it works ───────────────────────────────────────────────────
 
 const HOW_IT_WORKS = [
   {
     eyebrow: "01",
-    title: "Scored by AI, verified by community",
-    body: "Our engine analyses source reputation, factual consistency, and linguistic signals. Community members with Expert plans can submit corrections — improving every score over time.",
+    title: "Scored by Verity, checked by a council",
+    body: "Verity, a model we trained specifically to assess journalism, scores each article on nine dimensions. Five leading AI models score it independently as a check, and wherever they disagree, you see it.",
     visual: (
       <div className="bg-card border border-border rounded-lg p-5 space-y-3 text-sm">
-        <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Score breakdown</p>
-        {[["AI analysis", "0.3s"], ["Source lookup", "0.1s"], ["Community review", "ongoing"]].map(([step, time]) => (
+        <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">How a score is made</p>
+        {[["Verity", "scores"], ["5-model council", "checks"], ["Disagreements", "flagged"]].map(([step, time]) => (
           <div key={step} className="flex items-center justify-between">
             <span className="text-foreground">{step}</span>
             <span className="font-mono text-xs text-muted-foreground">{time}</span>
@@ -27,7 +29,7 @@ const HOW_IT_WORKS = [
     visual: (
       <div className="bg-card border border-border rounded-lg p-5 space-y-2 text-sm">
         <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">What we show</p>
-        {["Score + reasoning", "Source track record", "Known bias signals", "Community notes"].map((item) => (
+        {["Score + a plain-English verdict", "Nine dimension scores", "Where the models disagree", "What each model said"].map((item) => (
           <div key={item} className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-primary shrink-0" />
             <span className="text-foreground">{item}</span>
@@ -39,11 +41,11 @@ const HOW_IT_WORKS = [
   {
     eyebrow: "03",
     title: "Works where you already read news",
-    body: "The Chrome extension overlays scores directly on articles — no tab switching. The iOS app brings the same experience to mobile Safari and your news reader of choice.",
+    body: "The Chrome extension scores the article you're reading in one click, and can show the result on the page itself — no tab switching. Mobile apps are in development.",
     visual: (
       <div className="bg-card border border-border rounded-lg p-5 space-y-2 text-sm">
         <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Compatible with</p>
-        {["Chrome Extension", "iOS App (Safari)", "Firefox Add-on (coming soon)"].map((item) => (
+        {["Chrome extension", "iOS and Android apps (in development)"].map((item) => (
           <div key={item} className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
             <span className="text-foreground">{item}</span>
@@ -56,26 +58,6 @@ const HOW_IT_WORKS = [
 
 // ── Section 2: Pricing ────────────────────────────────────────────────────────
 
-const PLANS = [
-  {
-    name: "Free",
-    price: null,
-    features: ["100 rated articles/mo", "7-day article history", "Basic trends", "Chrome + iOS"],
-    recommended: false,
-  },
-  {
-    name: "Dedicated",
-    price: "$3",
-    features: ["1,000 rated articles/mo", "30-day article history", "Advanced trends", "Chrome + iOS"],
-    recommended: true,
-  },
-  {
-    name: "Expert",
-    price: "$5",
-    features: ["Unlimited articles", "1-year article history", "Advanced trends", "Community feedback"],
-    recommended: false,
-  },
-];
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
@@ -109,10 +91,10 @@ const Features = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="mb-12 space-y-2">
             <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Pricing</p>
-            <h2 className="text-3xl font-semibold text-foreground">Choose your version</h2>
+            <h2 className="text-3xl font-semibold text-foreground">Free to use. $3 a month to go deeper.</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl">
             {PLANS.map((plan) => (
               <div
                 key={plan.name}
@@ -138,11 +120,12 @@ const Features = () => {
                 </ul>
 
                 <Button
+                  asChild
                   variant={plan.recommended ? "default" : "outline"}
                   className={`w-full ${plan.recommended ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                   size="sm"
                 >
-                  Get started
+                  <Link to="/account/plan">{plan.price ? `Opens ${DEDICATED_OPENS}` : "Get started"}</Link>
                 </Button>
               </div>
             ))}
@@ -162,7 +145,6 @@ const Features = () => {
               Add to Chrome — Free
             </Button>
           </div>
-          <p className="font-mono text-xs text-muted-foreground">Also available on iOS</p>
         </div>
       </section>
     </>
