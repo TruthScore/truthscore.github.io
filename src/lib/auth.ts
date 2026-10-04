@@ -22,6 +22,30 @@ const REFRESH_BUFFER_SECONDS = 60;
 
 const nowSeconds = () => Math.floor(Date.now() / 1000);
 
+// Set just before we send the browser to Supabase and checked when it comes back, so tokens in a
+// fragment we didn't ask for (a crafted link signing the visitor into someone else's account) are
+// ignored. sessionStorage survives the same-tab round trip through the OAuth provider.
+const PENDING_KEY = "truthscore_web_auth_pending";
+
+export function markSignInStarted(): void {
+  try {
+    window.sessionStorage.setItem(PENDING_KEY, "1");
+  } catch {
+    // Storage blocked: consumeAuthRedirect can't check, and falls back to accepting.
+  }
+}
+
+/** True when this tab started a sign-in (or storage is unavailable to tell). Clears the mark. */
+function takeSignInMark(): boolean {
+  try {
+    const pending = window.sessionStorage.getItem(PENDING_KEY) === "1";
+    window.sessionStorage.removeItem(PENDING_KEY);
+    return pending;
+  } catch {
+    return true;
+  }
+}
+
 export function authorizeUrl(provider: Provider, redirectTo: string): string {
   return (
     `${SUPABASE_URL}/auth/v1/authorize` +
@@ -77,6 +101,9 @@ export function consumeAuthRedirect(hash: string, search = ""): RedirectResult {
   const q = new URLSearchParams(search.replace(/^\?/, ""));
   const accessToken = h.get("access_token");
   const refreshToken = h.get("refresh_token");
+  if (accessToken || refreshToken || h.get("error") || q.get("error")) {
+    if (!takeSignInMark()) return { kind: "error", message: "this sign-in link didn't start here. Use the buttons below to sign in." };
+  }
   if (accessToken && refreshToken) {
     const expiresAt =
       Number(h.get("expires_at")) || nowSeconds() + (Number(h.get("expires_in")) || 3600);

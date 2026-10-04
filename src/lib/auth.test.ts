@@ -6,6 +6,7 @@ import {
   getAccessToken,
   hasSession,
   loadSession,
+  markSignInStarted,
   saveSession,
   signOut,
 } from "./auth";
@@ -24,6 +25,25 @@ describe("authorizeUrl", () => {
 });
 
 describe("consumeAuthRedirect", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    markSignInStarted();
+  });
+
+  it("ignores tokens when this tab didn't start a sign-in (login CSRF)", () => {
+    sessionStorage.clear();
+    const r = consumeAuthRedirect("#access_token=evil&refresh_token=evil&expires_in=3600");
+    expect(r).toMatchObject({ kind: "error" });
+    expect(hasSession()).toBe(false);
+  });
+
+  it("accepts the mark only once", () => {
+    consumeAuthRedirect("#access_token=at&refresh_token=rt&expires_in=3600");
+    localStorage.clear();
+    expect(consumeAuthRedirect("#access_token=x&refresh_token=y&expires_in=3600")).toMatchObject({ kind: "error" });
+    expect(hasSession()).toBe(false);
+  });
+
   it("stores the session from an implicit-flow fragment", () => {
     const r = consumeAuthRedirect("#access_token=at&refresh_token=rt&expires_at=2000000000&token_type=bearer");
     expect(r).toEqual({ kind: "signed-in" });
@@ -41,6 +61,7 @@ describe("consumeAuthRedirect", () => {
       kind: "error",
       message: "User denied",
     });
+    markSignInStarted();
     expect(consumeAuthRedirect("", "?error=server_error")).toEqual({ kind: "error", message: "server error" });
     expect(hasSession()).toBe(false);
   });

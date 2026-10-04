@@ -65,6 +65,21 @@ describe("engine client", () => {
     expect(r).toMatchObject({ ok: false, error: { code: "BAD_RESPONSE" } });
   });
 
+  it("refuses an https link that isn't Stripe's hosted checkout or portal", async () => {
+    signIn();
+    for (const url of [
+      "https://evil.example/checkout",
+      "https://checkout.stripe.com.evil.example/x",
+      "https://user@evil.example@checkout.stripe.com/x",
+      "http://checkout.stripe.com/x",
+    ]) {
+      mockFetch({ "POST /billing/checkout": { status: 200, body: { status: "success", data: { url } } } });
+      expect(await startCheckout()).toMatchObject({ ok: false, error: { code: "BAD_RESPONSE" } });
+    }
+    mockFetch({ "POST /billing/portal": { status: 200, body: { status: "success", data: { url: "https://billing.stripe.com/p/session/x" } } } });
+    expect(await openPortal()).toEqual({ ok: true, data: { url: "https://billing.stripe.com/p/session/x" } });
+  });
+
   it("retries once with a refreshed token after a 401", async () => {
     signIn();
     const { calls } = mockFetch({

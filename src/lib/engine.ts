@@ -78,6 +78,18 @@ export async function fetchProfile(): Promise<EngineResult<Profile>> {
   };
 }
 
+const STRIPE_HOSTS = new Set(["checkout.stripe.com", "billing.stripe.com"]);
+
+export function isStripeUrl(url: unknown): url is string {
+  if (typeof url !== "string") return false;
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && STRIPE_HOSTS.has(u.hostname) && !u.username && !u.password && (u.port === "" || u.port === "443");
+  } catch {
+    return false;
+  }
+}
+
 async function postForUrl(path: string, body: unknown): Promise<EngineResult<{ url: string }>> {
   const r = await call(path, {
     method: "POST",
@@ -86,8 +98,8 @@ async function postForUrl(path: string, body: unknown): Promise<EngineResult<{ u
   });
   if (r.ok === false) return { ok: false, error: r.error };
   const url = (r.data as { data?: { url?: unknown } } | null)?.data?.url;
-  // Only ever leave the site for an https page the engine handed us.
-  if (typeof url !== "string" || !/^https:\/\//i.test(url)) {
+  // Only ever leave the site for Stripe's own hosted pages.
+  if (!isStripeUrl(url)) {
     return { ok: false, error: { status: 502, code: "BAD_RESPONSE", message: "Billing returned no link. Try again." } };
   }
   return { ok: true, data: { url } };

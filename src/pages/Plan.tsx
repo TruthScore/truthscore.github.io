@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
 import { SUPPORT_EMAIL } from "@/lib/config";
-import { authorizeUrl, clearSession, consumeAuthRedirect, hasSession, signOut, type Provider } from "@/lib/auth";
+import { authorizeUrl, clearSession, markSignInStarted, consumeAuthRedirect, hasSession, signOut, type Provider } from "@/lib/auth";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
 import { redirectTo } from "@/lib/redirect";
@@ -102,6 +102,7 @@ const Plan = () => {
   }, []);
 
   const signIn = (provider: Provider) => {
+    markSignInStarted();
     redirectTo(authorizeUrl(provider, `${window.location.origin}/account/plan`));
   };
 

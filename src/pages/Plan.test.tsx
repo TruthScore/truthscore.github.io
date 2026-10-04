@@ -72,6 +72,7 @@ describe("/account/plan — signed out", () => {
 
   it("stores the session from the OAuth return and strips the tokens from the URL", async () => {
     mockFetch({ "GET /user/profile": profile("free") });
+    sessionStorage.setItem("truthscore_web_auth_pending", "1"); // set by the sign-in button
     renderAt("/account/plan#access_token=at&refresh_token=rt&expires_in=3600&token_type=bearer");
     expect(await screen.findByText("Your plan: Free")).toBeTruthy();
     expect(window.location.hash).toBe("");
