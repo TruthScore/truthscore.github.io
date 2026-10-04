@@ -11,7 +11,7 @@ const Terms = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Terms of Service</h1>
-          <p className="text-muted-foreground">Last updated: 5 April 2026</p>
+          <p className="text-muted-foreground">Last updated: 4 October 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -59,26 +59,104 @@ const Terms = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">5. Subscriptions &amp; billing</h2>
             <p className="text-muted-foreground">
-              Free accounts are available with limited features. Paid plans (Dedicated and Expert)
-              are billed on a monthly or annual cycle. Prices are displayed in your local currency
-              where possible and include applicable taxes for UK and EU customers.
+              The Free plan costs nothing and has no payment terms. This section applies when you
+              buy a paid plan. At present the only paid plan is Dedicated, at $3 (US dollars) a
+              month. If we add another plan or billing period, the price and period shown at
+              checkout apply to it and the rest of this section applies as written.
             </p>
+
+            <h3 className="text-base font-medium text-foreground">5.1 Billing cycle</h3>
+            <p className="text-muted-foreground">
+              Dedicated is a monthly subscription. We charge your card when you subscribe, and the
+              same amount again on the same day each following month until you cancel. Payments are
+              processed by our payment provider, Stripe; we never see or store your full card
+              details. The price shown at checkout is the price you pay, including any tax we are
+              required to collect.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">5.2 Cancelling</h3>
+            <p className="text-muted-foreground">
+              You can cancel at any time from your account page ("Manage subscription"), or by
+              emailing{" "}
+              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
+                hello@truthscore.ai
+              </a>{" "}
+              from the address on your account. Cancelling stops the next payment. You keep
+              Dedicated until the end of the month you have already paid for, and then your account
+              moves to the Free plan. We do not delete your account or your scoring history when
+              you cancel; features that are part of Dedicated only are locked again until you
+              resubscribe. Deleting your account (section 10) also cancels any subscription.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">5.3 Refunds</h3>
             <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
               <li>
-                <span className="text-foreground font-medium">Cancellation</span> — you may cancel
-                your subscription at any time. Access continues until the end of the current billing
-                period.
+                <span className="text-foreground font-medium">First 14 days</span> — if you ask
+                within 14 days of first subscribing, we will refund your first payment in full,
+                wherever you live and however much you have used the Service. Your subscription then
+                ends straight away.
               </li>
               <li>
-                <span className="text-foreground font-medium">Refunds</span> — if you are an EU or
-                UK consumer, you have a 14-day statutory right of withdrawal from the date of
-                purchase, provided you have not fully used the service during that period.
+                <span className="text-foreground font-medium">After that</span> — monthly payments
+                are not refunded, in whole or in part, when you cancel. You keep access until the end
+                of the month you paid for.
               </li>
               <li>
-                <span className="text-foreground font-medium">Price changes</span> — we will give
-                at least 30 days' notice before any price increase takes effect.
+                <span className="text-foreground font-medium">When something goes wrong on our
+                side</span> — if you are charged in error, charged twice, or the Service is
+                unavailable for a significant part of a paid month, tell us and we will refund the
+                amount affected.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">If we end your subscription</span> —
+                if we close the Service or a paid plan, or end your subscription for any reason other
+                than your breach of these Terms, we will refund the unused part of the current month.
               </li>
             </ul>
+            <p className="text-muted-foreground">
+              To ask for a refund, email{" "}
+              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
+                hello@truthscore.ai
+              </a>{" "}
+              from the address on your account. Refunds go back to the card you paid with, normally
+              within 10 days. Nothing in this section limits any refund you are entitled to by law.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">
+              5.4 Your right to cancel if you live in the UK or EU
+            </h3>
+            <p className="text-muted-foreground">
+              If you are a consumer in the UK or the European Union, the law gives you 14 days from
+              the day you subscribe to withdraw from the contract without giving a reason. Because
+              Dedicated starts as soon as you subscribe, you could otherwise have to pay for the
+              days you used before withdrawing. We don't ask for that: the full refund in section
+              5.3 covers the whole 14 days, so withdrawing costs you nothing. To withdraw, email{" "}
+              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
+                hello@truthscore.ai
+              </a>{" "}
+              with your name, the email address on your account and a statement that you are
+              withdrawing; you do not need to use any particular form. The right applies to your
+              first subscription, not to each monthly renewal.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">5.5 Price changes</h3>
+            <p className="text-muted-foreground">
+              We may change the price of a paid plan. We will email you at least 30 days before a
+              new price applies to you, and it applies from your first payment after that notice
+              period. If you don't want to pay the new price, cancel before that payment and you
+              will not be charged it. A price change never affects a month you have already paid
+              for.
+            </p>
+
+            <h3 className="text-base font-medium text-foreground">5.6 Failed payments</h3>
+            <p className="text-muted-foreground">
+              If a monthly payment fails, we will email you and try the payment again a few times
+              over the following two weeks. You keep Dedicated while we retry, and you can update
+              your card from your account page at any time. If the payment still hasn't gone
+              through after the last attempt, your subscription ends and your account moves to the
+              Free plan. You won't owe us for the unpaid month, and you can subscribe again
+              whenever you like.
+            </p>
           </section>
 
           <section className="space-y-3">
@@ -128,8 +206,9 @@ const Terms = () => {
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-foreground">10. Termination</h2>
             <p className="text-muted-foreground">
-              You may delete your account at any time. We may suspend or terminate your account if
-              you breach these Terms, with reasonable notice where practicable. On termination, your
+              You may delete your account at any time; doing so cancels any paid subscription (see
+              section 5.2). We may suspend or terminate your account if you breach these Terms, with
+              reasonable notice where practicable. On termination, your
               right to use the Service ends and we will delete your personal data in accordance with
               our <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
             </p>
