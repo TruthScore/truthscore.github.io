@@ -1,11 +1,11 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { saveSession } from "./auth";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchProfile, openPortal, startCheckout } from "./engine";
-import { future, mockFetch } from "@/test/fetch-mock";
+import { mockFetch } from "@/test/fetch-mock";
+import { fakeClient, resetFakeSupabase, signIn, state } from "@/test/fake-supabase";
 
-const signIn = () => saveSession({ access_token: "at", refresh_token: "rt", expires_at: future() });
+vi.mock("./supabase", () => ({ getSupabase: () => fakeClient }));
 
-beforeEach(() => localStorage.clear());
+beforeEach(resetFakeSupabase);
 
 describe("engine client", () => {
   it("is signed-out without a session and never calls the engine", async () => {
@@ -87,16 +87,16 @@ describe("engine client", () => {
         { status: 401, body: { status: "error", code: "INVALID_TOKEN", message: "expired" } },
         { status: 200, body: { id: "u1", plan: "free" } },
       ],
-      "POST /auth/v1/token": { status: 200, body: { access_token: "at2", refresh_token: "rt2", expires_in: 3600 } },
     });
+    state.refreshed = { access_token: "at2", refresh_token: "rt2", expires_at: Math.floor(Date.now() / 1000) + 3600 };
     const r = await fetchProfile();
     expect(r.ok).toBe(true);
     expect(calls.map((c) => c.method + " " + new URL(c.url).pathname)).toEqual([
       "GET /api/v1/user/profile",
-      "POST /auth/v1/token",
       "GET /api/v1/user/profile",
     ]);
-    expect(calls[2].init.headers).toMatchObject({ Authorization: "Bearer at2" });
+    expect(calls[0].init.headers).toMatchObject({ Authorization: "Bearer at" });
+    expect(calls[1].init.headers).toMatchObject({ Authorization: "Bearer at2" });
   });
 
   it("reports a network failure without throwing", async () => {

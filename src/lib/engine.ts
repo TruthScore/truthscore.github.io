@@ -10,7 +10,7 @@
 //     404 NO_BILLING_ACCOUNT (portal, no Stripe customer), 502 BILLING_PROVIDER_ERROR, 401 auth.
 
 import { API_BASE } from "./config";
-import { getAccessToken } from "./auth";
+import { getSupabase } from "./supabase";
 
 export type PlanId = "free" | "dedicated" | "expert";
 
@@ -30,6 +30,20 @@ const NETWORK_ERROR: EngineError = {
   message: "Couldn't reach TruthScore. Check your connection and try again.",
 };
 const SIGNED_OUT: EngineError = { status: 401, code: "MISSING_AUTH", message: "Sign in to continue." };
+
+/**
+ * The shared session's access token (same client and session as /support). getSession() refreshes an
+ * expired token itself; forceRefresh asks Supabase for a new one after the engine rejected the old one.
+ */
+async function getAccessToken(opts: { forceRefresh?: boolean } = {}): Promise<string | null> {
+  try {
+    const { auth } = getSupabase();
+    const { data } = opts.forceRefresh ? await auth.refreshSession() : await auth.getSession();
+    return data.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+}
 
 async function call(path: string, init: RequestInit, retried = false): Promise<EngineResult<unknown>> {
   const token = await getAccessToken({ forceRefresh: retried });

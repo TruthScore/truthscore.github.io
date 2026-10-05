@@ -2,11 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Plan from "./Plan";
-import { SESSION_KEY, saveSession } from "@/lib/auth";
-import { future, mockFetch, type Reply } from "@/test/fetch-mock";
+import { mockFetch, type Reply } from "@/test/fetch-mock";
+import { auth, fakeClient, resetFakeSupabase, signIn, state } from "@/test/fake-supabase";
 
 const h = vi.hoisted(() => ({ opened: false, redirect: vi.fn() }));
 
+vi.mock("@/lib/supabase", () => ({ getSupabase: () => fakeClient }));
 vi.mock("@/lib/redirect", () => ({ redirectTo: h.redirect }));
 vi.mock("@/lib/plans", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/plans")>()),
@@ -36,10 +37,9 @@ function renderAt(url: string) {
     </MemoryRouter>,
   );
 }
-const signIn = () => saveSession({ access_token: "at", refresh_token: "rt", expires_at: future() });
 
 beforeEach(() => {
-  localStorage.clear();
+  resetFakeSupabase();
   sessionStorage.clear();
   h.opened = false;
   h.redirect.mockReset();
@@ -55,10 +55,12 @@ describe("/account/plan — signed out", () => {
     expect(screen.getByText("Email me when it opens")).toBeTruthy();
     expect(screen.queryByText("Upgrade to Dedicated")).toBeNull();
     fireEvent.click(screen.getByText("Continue with Google"));
-    const url = new URL(h.redirect.mock.calls[0][0]);
-    expect(url.pathname).toBe("/auth/v1/authorize");
-    expect(url.searchParams.get("provider")).toBe("google");
-    expect(url.searchParams.get("redirect_to")).toBe(`${window.location.origin}/account/plan`);
+    await waitFor(() =>
+      expect(auth.signInWithOAuth).toHaveBeenCalledWith({
+        provider: "google",
+        options: { redirectTo: `${window.location.origin}/account/plan` },
+      }),
+    );
     expect(fn).not.toHaveBeenCalled();
   });
 
@@ -70,13 +72,28 @@ describe("/account/plan — signed out", () => {
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Plans");
   });
 
-  it("stores the session from the OAuth return and strips the tokens from the URL", async () => {
-    mockFetch({ "GET /user/profile": profile("free") });
-    sessionStorage.setItem("truthscore_web_auth_pending", "1"); // set by the sign-in button
-    renderAt("/account/plan#access_token=at&refresh_token=rt&expires_in=3600&token_type=bearer");
+  it("shows the account after the OAuth return (shared session) and reads the profile with its token", async () => {
+    signIn("shared");
+    const { calls } = mockFetch({ "GET /user/profile": profile("free") });
+    renderAt("/account/plan?code=abc");
     expect(await screen.findByText("Your plan: Free")).toBeTruthy();
-    expect(window.location.hash).toBe("");
-    expect(JSON.parse(localStorage.getItem(SESSION_KEY)!).access_token).toBe("at");
+    expect(calls[0].init.headers).toMatchObject({ Authorization: "Bearer shared" });
+  });
+
+  it("shows a provider error from the OAuth return and strips it from the URL", async () => {
+    mockFetch({});
+    renderAt("/account/plan?error=access_denied&error_description=User+cancelled");
+    expect(await screen.findByText("Sign-in didn't complete: User cancelled")).toBeTruthy();
+    expect(window.location.search).toBe("");
+  });
+
+  it("signs out through the shared client", async () => {
+    signIn();
+    mockFetch({ "GET /user/profile": profile("free") });
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out"));
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    expect(auth.signOut).toHaveBeenCalled();
   });
 });
 
@@ -143,7 +160,6 @@ describe("/account/plan — free user", () => {
     signIn();
     mockFetch({
       "GET /user/profile": { status: 401, body: { status: "error", code: "INVALID_TOKEN", message: "bad" } },
-      "POST /auth/v1/token": { status: 400, body: {} },
     });
     renderAt("/account/plan");
     expect(await screen.findByText("Your session has ended. Sign in again to see your plan.")).toBeTruthy();

@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
 import { SUPPORT_EMAIL } from "@/lib/config";
-import { authorizeUrl, clearSession, markSignInStarted, consumeAuthRedirect, hasSession, signOut, type Provider } from "@/lib/auth";
+import { getSupabase } from "@/lib/supabase";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
 import { redirectTo } from "@/lib/redirect";
@@ -18,6 +18,22 @@ import { redirectTo } from "@/lib/redirect";
 //
 // Until billing is switched on the engine answers 503 BILLING_DISABLED, and the page keeps
 // the "Dedicated opens 7 October" copy (ship design decision 4).
+
+type Provider = "google" | "github";
+
+// Forget a session the engine rejected (this tab only; leaves other devices signed in).
+const dropSession = () => {
+  void getSupabase().auth.signOut({ scope: "local" }).catch(() => undefined);
+};
+
+// Supabase reports a failed OAuth return as error/error_description in the query or fragment.
+const readAuthError = (search: string, hash: string): string | null => {
+  const q = new URLSearchParams(search.replace(/^\?/, ""));
+  const h = new URLSearchParams(hash.replace(/^#/, ""));
+  const error = h.get("error") || q.get("error");
+  if (!error) return null;
+  return h.get("error_description") || q.get("error_description") || error.replace(/_/g, " ");
+};
 
 const PLAN_NAMES: Record<PlanId, string> = { free: "Free", dedicated: "Dedicated", expert: "Expert" };
 const BILLING_CLOSED_KEY = "truthscore_billing_closed";
@@ -56,14 +72,27 @@ const Plan = () => {
   useEffect(() => {
     cancelled.current = false;
     const { hash, search, pathname } = window.location;
-    const auth = consumeAuthRedirect(hash, search);
+    const authError = readAuthError(search, hash);
     const checkoutReturn = readCheckoutReturn(search);
-    // Tokens and one-shot flags out of the address bar (and out of history and screenshots).
-    if (hash || checkoutReturn || auth) window.history.replaceState(null, "", pathname);
-    if (auth?.kind === "error") setNotice(`Sign-in didn't complete: ${auth.message}`);
+    if (authError) setNotice(`Sign-in didn't complete: ${authError}`);
+
+    const sb = getSupabase();
+    const { data: sub } = sb.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT" && !cancelled.current) setStatus({ kind: "signed-out" });
+    });
 
     (async () => {
-      if (!hasSession()) {
+      // Resolves after supabase-js has finished any OAuth code exchange in the URL.
+      let signedIn = false;
+      try {
+        signedIn = (await sb.auth.getSession()).data.session !== null;
+      } catch {
+        signedIn = false;
+      }
+      if (cancelled.current) return;
+      // One-shot flags and errors out of the address bar (and out of history and screenshots).
+      if (checkoutReturn || authError) window.history.replaceState(null, "", pathname);
+      if (!signedIn) {
         setStatus({ kind: "signed-out" });
         if (checkoutReturn === "success") setReturnNote("success-signed-out");
         if (checkoutReturn === "cancel") setReturnNote("cancelled");
@@ -73,7 +102,7 @@ const Plan = () => {
       if (cancelled.current) return;
       if (r.ok === false) {
         if (r.error.status === 401) {
-          clearSession();
+          dropSession();
           setStatus({ kind: "signed-out" });
           setNotice("Your session has ended. Sign in again to see your plan.");
         } else {
@@ -98,16 +127,29 @@ const Plan = () => {
 
     return () => {
       cancelled.current = true;
+      sub.subscription.unsubscribe();
     };
   }, []);
 
-  const signIn = (provider: Provider) => {
-    markSignInStarted();
-    redirectTo(authorizeUrl(provider, `${window.location.origin}/account/plan`));
+  const signIn = async (provider: Provider) => {
+    setNotice(null);
+    try {
+      const { error } = await getSupabase().auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/account/plan` },
+      });
+      if (error) setNotice(`Sign-in couldn't start. Email ${SUPPORT_EMAIL} instead.`);
+    } catch {
+      setNotice(`Sign-in couldn't start. Email ${SUPPORT_EMAIL} instead.`);
+    }
   };
 
   const doSignOut = async () => {
-    await signOut();
+    try {
+      await getSupabase().auth.signOut();
+    } catch {
+      dropSession();
+    }
     setStatus({ kind: "signed-out" });
     setReturnNote(null);
     setNotice(null);
@@ -132,7 +174,7 @@ const Plan = () => {
       if (p.ok) setStatus({ kind: "signed-in", profile: p.data });
       setNotice("Your account already has a paid plan. Use Manage subscription to change it.");
     } else if (httpStatus === 401) {
-      clearSession();
+      dropSession();
       setStatus({ kind: "signed-out" });
       setNotice("Your session has ended. Sign in again to upgrade.");
     } else {
@@ -155,7 +197,7 @@ const Plan = () => {
     } else if (code === "NO_BILLING_ACCOUNT") {
       setNotice(`This plan isn't billed through Stripe, so there's no subscription to manage here. Email ${SUPPORT_EMAIL} with any questions.`);
     } else if (httpStatus === 401) {
-      clearSession();
+      dropSession();
       setStatus({ kind: "signed-out" });
       setNotice("Your session has ended. Sign in again to manage your subscription.");
     } else {
