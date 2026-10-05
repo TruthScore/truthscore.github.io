@@ -30,13 +30,27 @@ const Support = () => {
 
   useEffect(() => {
     const sb = getSupabase();
-    sb.auth.getSession().then(({ data }) => { setSession(data.session); setLoading(false); });
+    sb.auth.getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch(() => setSession(null)) // show the signed-out view (it carries the email fallback)
+      .finally(() => setLoading(false));
     const { data } = sb.auth.onAuthStateChange((_e, s) => setSession(s));
     return () => data.subscription.unsubscribe();
   }, []);
 
-  const signIn = (provider: "google" | "github") =>
-    getSupabase().auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/support` } });
+  const signIn = async (provider: "google" | "github") => {
+    setError("");
+    try {
+      const { error: oauthError } = await getSupabase().auth.signInWithOAuth({
+        provider, options: { redirectTo: `${window.location.origin}/support` },
+      });
+      if (oauthError) setError(`Sign-in couldn't start. Email ${SUPPORT_EMAIL} instead.`);
+    } catch {
+      setError(`Sign-in couldn't start. Email ${SUPPORT_EMAIL} instead.`);
+    }
+  };
+
+  const signOut = () => { void getSupabase().auth.signOut(); };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +66,10 @@ const Support = () => {
       setResult(r);
       setSubject(""); setDescription(""); setCategory("");
     } catch (err) {
-      setError(supportErrorCopy(err instanceof SupportError ? err.code : undefined));
+      const code = err instanceof SupportError ? err.code : undefined;
+      setError(supportErrorCopy(code));
+      // Dead session: sign out so the sign-in buttons return (the error copy stays visible there).
+      if (code === "MISSING_AUTH" || code === "INVALID_TOKEN" || code === "EXPIRED_TOKEN") signOut();
     } finally {
       setPending(false);
     }
@@ -71,6 +88,7 @@ const Support = () => {
               <Button onClick={() => signIn("google")}>Sign in with Google</Button>
               <Button variant="outline" onClick={() => signIn("github")}>GitHub</Button>
             </div>
+            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             <Fallback />
           </div>
         ) : result ? (
@@ -98,7 +116,10 @@ const Support = () => {
               <Label htmlFor="support-description">What happened?</Label>
               <Textarea id="support-description" rows={8} maxLength={5000} value={description} onChange={e => setDescription(e.target.value)} />
             </div>
-            <p className="text-sm text-muted-foreground">Replies go to: {session.user.email}</p>
+            <p className="text-sm text-muted-foreground">
+              Replies go to: {session.user.email}{" "}
+              <button type="button" className="underline" onClick={signOut}>Not you? Sign out</button>
+            </p>
             {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={pending}>{pending ? "Sending…" : "Send"}</Button>
             <Fallback />

@@ -14,6 +14,7 @@ describe('support lib (twin of extension shared/support.js)', () => {
     expect(deviceLabel('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15')).toBe('macOS / Safari 17');
   });
   it('falls back to the email address', () => expect(supportErrorCopy('X')).toContain('support@truthscore.ai'));
+  it('explains an unverified account email', () => expect(supportErrorCopy('SUPPORT_EMAIL_MISSING')).toMatch(/verified email/));
 
   it('posts with the bearer and surfaces engine codes', async () => {
     const ok = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'success', data: { ticket_id: 'TCK-1001', email_sent: true } }), { status: 201 }));

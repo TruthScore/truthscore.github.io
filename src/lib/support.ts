@@ -61,7 +61,7 @@ const COPY: Record<string, string> = {
   MISSING_AUTH: 'Please sign in again to contact support.',
   INVALID_TOKEN: 'Please sign in again to contact support.',
   EXPIRED_TOKEN: 'Please sign in again to contact support.',
-  SUPPORT_EMAIL_MISSING: `Your account has no email we can reply to. Email ${SUPPORT_EMAIL} instead.`,
+  SUPPORT_EMAIL_MISSING: `Your account has no verified email we can reply to. Email ${SUPPORT_EMAIL} instead.`,
 };
 export const supportErrorCopy = (code?: string) =>
   (code && COPY[code]) || `We couldn't send your request right now. Please email ${SUPPORT_EMAIL}.`;
