@@ -29,6 +29,10 @@ This is a **Vite + React + TypeScript** single-page application using **shadcn/u
 
 - `src/App.tsx` — Root component. Sets up `react-router-dom` routes, wraps with `QueryClientProvider` and `TooltipProvider`. New routes go here, above the `*` catch-all.
 - `src/pages/Index.tsx` — The landing page, currently composed of `<Hero />` and `<Features />`.
+- `src/pages/{Changelog,Privacy,Terms,Methodology}.tsx` — content pages; `src/pages/Plan.tsx` — `/account/plan`.
+- `src/pages/Support.tsx` — `/support`, **lazy-loaded**: the only route that loads Supabase auth
+  (`src/lib/supabase.ts`, PKCE) and posts to the engine's `POST /support`. `src/lib/support.ts` is
+  the TypeScript twin of the extension's `shared/support.js` — keep categories, limits and copy identical.
 - `src/pages/NotFound.tsx` — 404 fallback.
 
 ### Components
