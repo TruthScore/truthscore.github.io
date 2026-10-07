@@ -11,6 +11,29 @@ Entries are newest-first. Dates are when the decision shipped, not when it was d
 
 ---
 
+### D-003 · 2026-10-07 · Every public route gets a real HTML file at build time; the sitemap comes from the same list
+
+GitHub Pages only serves files, so `/privacy`, `/methodology` etc. were answered by `404.html` with
+**HTTP 404** and redirected client-side. Browsers coped; Google treated every subpage as not found
+(found while adding the sitemap, #13). `scripts/static-routes.mjs` runs after `vite build`, copies
+`index.html` to `<route>.html` (Pages serves `/privacy` from `privacy.html` with 200) and writes
+`sitemap.xml` from the same `ROUTES` list. Prerendering (SSG) was not adopted: the shells are
+identical SPA bootstraps, which is enough for status codes and indexing. A new route must be added to
+both `src/App.tsx` and `ROUTES`; `404.html` still catches unknown paths.
+
+### D-002 · 2026-10-07 · Google Analytics 4 loads from the static `<head>` with Consent Mode v2 denied by default
+
+Search Console verification (Google Analytics method) and visitor analytics both needed the gtag
+snippet; it sits in `index.html` `<head>`, not React, because verification reads the raw HTML.
+The privacy policy had promised no cookies or analytics under PECR, so (Neil's choice) analytics
+cookies are **off until the visitor clicks Accept**: `analytics_storage` defaults to denied (GA gets
+cookieless pings only), all ad signals are denied permanently, the choice is stored in
+`localStorage['ts-analytics-consent']` and read by the inline snippet so returning visitors are
+consistent from the first hit, and "Cookie settings" in the footer reopens the banner; Decline also
+deletes existing `_ga*` cookies. Privacy policy updated in the same PR (#12). Extension and app
+analytics go to the same property by other means (X#94 Measurement Protocol, M#24 Firebase) because
+MV3 forbids remote code and gtag.js is web-only.
+
 ### D-001 · 2026-10-05 · `/support` is the only page that loads Supabase auth, as a lazy chunk; its form logic is a TypeScript twin of the extension's
 
 The site is a static GitHub Pages SPA with no auth. Support tickets must be signed-in (engine
