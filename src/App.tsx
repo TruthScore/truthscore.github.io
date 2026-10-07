@@ -31,7 +31,7 @@ const App = () => (
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/account/plan" element={<Plan />} />
           <Route path="/support" element={<Suspense fallback={null}><Support /></Suspense>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE — and to scripts/static-routes.mjs */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         <CookieConsent />
