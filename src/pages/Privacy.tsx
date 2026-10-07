@@ -11,7 +11,7 @@ const Privacy = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Privacy Policy</h1>
-          <p className="text-muted-foreground">Last updated: 30 September 2026</p>
+          <p className="text-muted-foreground">Last updated: 7 October 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -31,9 +31,13 @@ const Privacy = () => {
 
             <h3 className="text-base font-medium text-foreground">Visitors to this website</h3>
             <p className="text-muted-foreground">
-              If you are simply browsing this marketing website without creating an account, we do not
-              collect, store, or process any personal data about you. We do not use cookies, analytics
-              trackers, or fingerprinting on this site.
+              If you are simply browsing this marketing website, we use Google Analytics to understand
+              how visitors find and use it (pages viewed, approximate location, device and browser
+              type, and the site that referred you). Analytics cookies are only set if you click
+              Accept in the cookie banner; until then, and if you decline, Google receives only
+              cookieless signals that do not identify you or your device. You can change your choice
+              at any time via "Cookie settings" in the site footer. We do not use advertising
+              cookies or fingerprinting, and Google Analytics does not log or store your IP address.
             </p>
 
             <h3 className="text-base font-medium text-foreground">Anyone using the Chrome Extension or app</h3>
@@ -98,7 +102,7 @@ const Privacy = () => {
             <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
               <li><span className="text-foreground font-medium">Contract</span> — to provide the service you signed up for.</li>
               <li><span className="text-foreground font-medium">Legitimate interest</span> — to improve scoring models, prevent abuse, and maintain security.</li>
-              <li><span className="text-foreground font-medium">Consent</span> — for any optional communications (e.g. product update emails). You can withdraw consent at any time.</li>
+              <li><span className="text-foreground font-medium">Consent</span> — for analytics cookies on this website and any optional communications (e.g. product update emails). You can withdraw consent at any time.</li>
             </ul>
           </section>
 
@@ -128,6 +132,7 @@ const Privacy = () => {
                 our own Verity model). Audio and video are transcribed by OpenAI. We send them the
                 content to be scored, never your name, email address or device identifier.
               </li>
+              <li>Google, which provides Google Analytics for this website (see section 2).</li>
               <li>Payment processors (to handle billing).</li>
               <li>Law enforcement or regulatory bodies where required by law.</li>
             </ul>
@@ -143,7 +148,8 @@ const Privacy = () => {
               Scores are cached by article address and reused for anyone who scores the same article,
               so the article's text and its score are kept independently of who first asked. Anonymous
               device identifiers are kept while the free allowance they count is in use. We retain your
-              account data for as long as your account is active. Usage data used for
+              account data for as long as your account is active. Website analytics data is kept by
+              Google Analytics for 14 months. Usage data used for
               model training is aggregated and de-identified within 90 days. If you delete your
               account, we will erase your personal data within 30 days, except where retention is
               required by law.

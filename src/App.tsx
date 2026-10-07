@@ -11,6 +11,7 @@ import Terms from "./pages/Terms";
 import Methodology from "./pages/Methodology";
 import Plan from "./pages/Plan";
 import NotFound from "./pages/NotFound";
+import CookieConsent from "./components/CookieConsent";
 
 const Support = lazy(() => import("./pages/Support"));
 
@@ -33,6 +34,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <CookieConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,5 +1,6 @@
 import { Scale } from "lucide-react";
 import { Link } from "react-router-dom";
+import { openCookieSettings } from "@/lib/consent";
 
 const Footer = () => {
   return (
@@ -10,7 +11,7 @@ const Footer = () => {
           <span>&copy; {new Date().getFullYear()} TruthScore.ai</span>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <Link to="/support" className="hover:text-foreground transition-colors">
             Support
           </Link>
@@ -23,6 +24,9 @@ const Footer = () => {
           <Link to="/terms" className="hover:text-foreground transition-colors">
             Terms of Service
           </Link>
+          <button type="button" onClick={openCookieSettings} className="hover:text-foreground transition-colors">
+            Cookie settings
+          </button>
         </div>
       </div>
     </footer>
