@@ -17,6 +17,9 @@ bun run build
 # Lint
 bun run lint
 
+# Tests (Vitest + jsdom; src/**/*.test.ts(x))
+bun run test
+
 # Preview production build locally
 bun run preview
 ```
@@ -34,6 +37,7 @@ This is a **Vite + React + TypeScript** single-page application using **shadcn/u
   (`src/lib/supabase.ts`, PKCE) and posts to the engine's `POST /support`. `src/lib/support.ts` is
   the TypeScript twin of the extension's `shared/support.js` — keep categories, limits and copy identical.
 - `src/pages/NotFound.tsx` — 404 fallback.
+- `src/pages/Plan.tsx` — `/account/plan` (and `/account` redirects there): Supabase sign-in, current plan, Stripe Checkout / customer portal via the engine's `/billing/*` (engine E#37). Lazy route. Auth is the shared `getSupabase()` client in `src/lib/supabase.ts` (PKCE, same session as /support); engine calls are `src/lib/engine.ts`.
 
 ### Components
 
