@@ -10,7 +10,7 @@ import { copyFileSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const SITE = "https://truthscore.ai";
-const ROUTES = ["/", "/methodology", "/changelog", "/support", "/account/plan", "/privacy", "/terms"];
+const ROUTES = ["/", "/methodology", "/changelog", "/support", "/account/plan", "/account/delete", "/privacy", "/terms"];
 const DIST = "dist";
 
 for (const route of ROUTES.filter((r) => r !== "/")) {
