@@ -152,7 +152,8 @@ const Privacy = () => {
               Google Analytics for 14 months. Usage data used for
               model training is aggregated and de-identified within 90 days. If you delete your
               account, we will erase your personal data within 30 days, except where retention is
-              required by law.
+              required by law. You can delete your account yourself at{" "}
+              <Link to="/account/delete" className="text-primary hover:underline">truthscore.ai/account/delete</Link>.
             </p>
           </section>
 

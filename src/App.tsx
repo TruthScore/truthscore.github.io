@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
 
 const Support = lazy(() => import("./pages/Support"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/terms" element={<Terms />} />
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/account/plan" element={<Plan />} />
+          <Route path="/account/delete" element={<Suspense fallback={null}><DeleteAccount /></Suspense>} />
           <Route path="/support" element={<Suspense fallback={null}><Support /></Suspense>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE — and to scripts/static-routes.mjs */}
           <Route path="*" element={<NotFound />} />

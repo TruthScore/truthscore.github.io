@@ -24,6 +24,9 @@ const Footer = () => {
           <Link to="/terms" className="hover:text-foreground transition-colors">
             Terms of Service
           </Link>
+          <Link to="/account/delete" className="hover:text-foreground transition-colors">
+            Delete account
+          </Link>
           <button type="button" onClick={openCookieSettings} className="hover:text-foreground transition-colors">
             Cookie settings
           </button>
