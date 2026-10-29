@@ -11,7 +11,7 @@ const Terms = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Terms of Service</h1>
-          <p className="text-muted-foreground">Last updated: 4 October 2026</p>
+          <p className="text-muted-foreground">Last updated: 29 October 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -22,6 +22,16 @@ const Terms = () => {
               Chrome browser extension, and web application (collectively, the "Service") provided
               by TruthScore.ai ("TruthScore", "we", "us", "our"). By creating an account or
               using the Service, you agree to be bound by these Terms.
+            </p>
+            <p className="text-muted-foreground">
+              TruthScore is a trading name of Adaptive Enterprises Ltd, a company registered in
+              England and Wales (company number 16328352), whose registered office is at 124 City
+              Road, London, EC1V 2NX, United Kingdom. Questions about payments and subscriptions go
+              to {" "}
+              <a href="mailto:billing@truthscore.ai" className="text-primary hover:underline">
+                billing@truthscore.ai
+              </a>
+              .
             </p>
             <p className="text-muted-foreground">
               If you are browsing this website without creating an account, these Terms do not
@@ -70,18 +80,19 @@ const Terms = () => {
               Dedicated is a monthly subscription. We charge your card when you subscribe, and the
               same amount again on the same day each following month until you cancel. Payments are
               processed by our payment provider, Stripe; we never see or store your full card
-              details. The price shown at checkout is the price you pay, including any tax we are
-              required to collect.
+              details. The price shown at checkout is the price you pay, including UK VAT where we
+              are required to charge it.
             </p>
 
             <h3 className="text-base font-medium text-foreground">5.2 Cancelling</h3>
             <p className="text-muted-foreground">
-              You can cancel at any time from your account page ("Manage subscription"), or by
-              emailing{" "}
-              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
-                hello@truthscore.ai
+              You can cancel at any time by emailing{" "}
+              <a href="mailto:billing@truthscore.ai" className="text-primary hover:underline">
+                billing@truthscore.ai
               </a>{" "}
-              from the address on your account. Cancelling stops the next payment. You keep
+              from the address on your account. Once your account page offers "Manage
+              subscription", you will also be able to cancel there. Cancelling stops the next
+              payment. You keep
               Dedicated until the end of the month you have already paid for, and then your account
               moves to the Free plan. We do not delete your account or your scoring history when
               you cancel; features that are part of Dedicated only are locked again until you
@@ -103,9 +114,8 @@ const Terms = () => {
               </li>
               <li>
                 <span className="text-foreground font-medium">When something goes wrong on our
-                side</span> — if you are charged in error, charged twice, or the Service is
-                unavailable for a significant part of a paid month, tell us and we will refund the
-                amount affected.
+                side</span> — if you are charged in error or charged twice, tell us and we will
+                refund the amount affected.
               </li>
               <li>
                 <span className="text-foreground font-medium">If we end your subscription</span> —
@@ -115,8 +125,8 @@ const Terms = () => {
             </ul>
             <p className="text-muted-foreground">
               To ask for a refund, email{" "}
-              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
-                hello@truthscore.ai
+              <a href="mailto:billing@truthscore.ai" className="text-primary hover:underline">
+                billing@truthscore.ai
               </a>{" "}
               from the address on your account. Refunds go back to the card you paid with, normally
               within 10 days. Nothing in this section limits any refund you are entitled to by law.
@@ -131,13 +141,31 @@ const Terms = () => {
               Dedicated starts as soon as you subscribe, you could otherwise have to pay for the
               days you used before withdrawing. We don't ask for that: the full refund in section
               5.3 covers the whole 14 days, so withdrawing costs you nothing. To withdraw, email{" "}
-              <a href="mailto:hello@truthscore.ai" className="text-primary hover:underline">
-                hello@truthscore.ai
+              <a href="mailto:billing@truthscore.ai" className="text-primary hover:underline">
+                billing@truthscore.ai
               </a>{" "}
               with your name, the email address on your account and a statement that you are
-              withdrawing; you do not need to use any particular form. The right applies to your
-              first subscription, not to each monthly renewal.
+              withdrawing. You can use the model withdrawal form below, but you don't have to. The
+              right applies to your first subscription, not to each monthly renewal.
             </p>
+            <div className="rounded-md border border-border p-4 space-y-2 text-muted-foreground">
+              <p className="text-foreground font-medium">Model withdrawal form</p>
+              <p className="italic">(Complete and return this form only if you wish to withdraw from the contract.)</p>
+              <p>
+                To: Adaptive Enterprises Ltd (trading as TruthScore), 124 City Road, London, EC1V
+                2NX, United Kingdom; billing@truthscore.ai
+              </p>
+              <p>
+                I hereby give notice that I withdraw from my contract for the supply of the
+                following service: TruthScore Dedicated subscription.
+              </p>
+              <p>Ordered on: ______________</p>
+              <p>Name of consumer: ______________</p>
+              <p>Email address on the TruthScore account: ______________</p>
+              <p>Address of consumer: ______________</p>
+              <p>Signature of consumer (only if this form is sent on paper): ______________</p>
+              <p>Date: ______________</p>
+            </div>
 
             <h3 className="text-base font-medium text-foreground">5.5 Price changes</h3>
             <p className="text-muted-foreground">
@@ -151,8 +179,8 @@ const Terms = () => {
             <h3 className="text-base font-medium text-foreground">5.6 Failed payments</h3>
             <p className="text-muted-foreground">
               If a monthly payment fails, we will email you and try the payment again a few times
-              over the following two weeks. You keep Dedicated while we retry, and you can update
-              your card from your account page at any time. If the payment still hasn't gone
+              over the following two weeks. You keep Dedicated while we retry. To update your card,
+              email us (or, once it is available, use your account page). If the payment still hasn't gone
               through after the last attempt, your subscription ends and your account moves to the
               Free plan. You won't owe us for the unpaid month, and you can subscribe again
               whenever you like.
