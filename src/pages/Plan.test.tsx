@@ -117,25 +117,27 @@ describe("/account/plan — free user", () => {
     expect(checkout.init.headers).toMatchObject({ Authorization: "Bearer at" });
   });
 
-  it("on 503 BILLING_DISABLED falls back to the 'opens 7 October' copy", async () => {
+  it("on 503 BILLING_DISABLED (after opening day) says Dedicated isn't on sale right now", async () => {
+    h.opened = true;
     signIn();
     mockFetch({ "GET /user/profile": profile("free"), "POST /billing/checkout": disabled });
     renderAt("/account/plan");
     fireEvent.click(await screen.findByText("Upgrade to Dedicated"));
-    expect(await screen.findByText("Dedicated isn't on sale yet. It opens 7 October.")).toBeTruthy();
-    expect(screen.getByText("Opens 7 October.")).toBeTruthy();
+    expect(await screen.findByText("Dedicated isn't on sale right now. Please try again later.")).toBeTruthy();
+    expect(screen.getByText("Not on sale right now.")).toBeTruthy();
     expect(screen.getByText("Email me when it opens")).toBeTruthy();
     expect(screen.queryByText("Upgrade to Dedicated")).toBeNull();
     expect(h.redirect).not.toHaveBeenCalled();
   });
 
   it("remembers billing is closed for the rest of the browser session", async () => {
+    h.opened = true;
     signIn();
     sessionStorage.setItem("truthscore_billing_closed", "1");
     mockFetch({ "GET /user/profile": profile("free") });
     renderAt("/account/plan");
     expect(await screen.findByText("Your plan: Free")).toBeTruthy();
-    expect(screen.getByText("Opens 7 October.")).toBeTruthy();
+    expect(screen.getByText("Not on sale right now.")).toBeTruthy();
     expect(screen.queryByText("Upgrade to Dedicated")).toBeNull();
   });
 

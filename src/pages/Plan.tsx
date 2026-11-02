@@ -168,7 +168,9 @@ const Plan = () => {
     if (code === "BILLING_DISABLED") {
       rememberClosed();
       setBillingClosed(true);
-      setNotice(`Dedicated isn't on sale yet. It opens ${DEDICATED_OPENS}.`);
+      setNotice(
+        dedicatedHasOpened() ? "Dedicated isn't on sale right now. Please try again later." : `Dedicated isn't on sale yet. It opens ${DEDICATED_OPENS}.`,
+      );
     } else if (code === "ALREADY_SUBSCRIBED") {
       const p = await fetchProfile();
       if (p.ok) setStatus({ kind: "signed-in", profile: p.data });
@@ -416,7 +418,9 @@ const DedicatedAction = ({
   if (showOpensCopy) {
     return (
       <div className="space-y-2">
-        <p className="text-sm text-foreground font-medium">Opens {DEDICATED_OPENS}.</p>
+        <p className="text-sm text-foreground font-medium">
+          {dedicatedHasOpened() ? "Not on sale right now." : `Opens ${DEDICATED_OPENS}.`}
+        </p>
         <a href={notifyHref} className="text-sm text-primary hover:underline">
           Email me when it opens
         </a>
@@ -431,6 +435,10 @@ const DedicatedAction = ({
         </Button>
         <p className="text-xs text-muted-foreground">
           $3 a month, paid through Stripe. Cancel any time from this page.
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Available with a billing address in the UK, the US, Canada, Australia, New Zealand or the
+          English-speaking Caribbean.
         </p>
       </div>
     );
