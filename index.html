@@ -29,6 +29,25 @@
       })();
     </script>
 
+    <!-- Google tag (gtag.js), Consent Mode v2: analytics cookies stay off until the visitor
+         accepts in the cookie banner (src/components/CookieConsent.tsx). Must stay in the static
+         <head> — Search Console verifies ownership by reading this snippet. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KT7CMQHFFL"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      var tsConsent = null;
+      try { tsConsent = localStorage.getItem('ts-analytics-consent'); } catch (e) {}
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: tsConsent === 'granted' ? 'granted' : 'denied'
+      });
+      gtag('js', new Date());
+      gtag('config', 'G-KT7CMQHFFL');
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />

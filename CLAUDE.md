@@ -30,8 +30,16 @@ This is a **Vite + React + TypeScript** single-page application using **shadcn/u
 
 ### Routing
 
-- `src/App.tsx` — Root component. Sets up `react-router-dom` routes, wraps with `QueryClientProvider` and `TooltipProvider`. New routes go here, above the `*` catch-all.
+- `src/App.tsx` — Root component. Sets up `react-router-dom` routes, wraps with `QueryClientProvider` and `TooltipProvider`. New routes go here, above the `*` catch-all, **and in `scripts/static-routes.mjs`** (post-build route shells + sitemap).
 - `src/pages/Index.tsx` — The landing page, currently composed of `<Hero />` and `<Features />`.
+- `src/pages/{Changelog,Privacy,Terms,Methodology}.tsx` — content pages; `src/pages/Plan.tsx` — `/account/plan`.
+- `src/pages/Support.tsx` — `/support`, **lazy-loaded**: with `/account/delete`, the only routes that load Supabase auth
+  (`src/lib/supabase.ts`, PKCE) and posts to the engine's `POST /support`. `src/lib/support.ts` is
+  the TypeScript twin of the extension's `shared/support.js` — keep categories, limits and copy identical.
+- `src/pages/DeleteAccount.tsx` — `/account/delete`, lazy-loaded like `/support` (same Supabase sign-in):
+  the Google Play "Delete account URL". Calls the engine's `DELETE /user/account`
+  (`src/lib/account.ts`), which needs a sign-in under 10 minutes old — the page asks for a fresh
+  sign-in itself when the stored session is older.
 - `src/pages/NotFound.tsx` — 404 fallback.
 - `src/pages/Plan.tsx` — `/account/plan` (and `/account` redirects there): Supabase sign-in, current plan, Stripe Checkout / customer portal via the engine's `/billing/*` (engine E#37). Lazy route. Auth is the shared `getSupabase()` client in `src/lib/supabase.ts` (PKCE, same session as /support); engine calls are `src/lib/engine.ts`.
 
@@ -39,6 +47,7 @@ This is a **Vite + React + TypeScript** single-page application using **shadcn/u
 
 - `src/components/Hero.tsx` — Above-the-fold section with animated hero visual, CTA buttons, and social proof.
 - `src/components/Features.tsx` — Features carousel (horizontal scroll/snap), pricing comparison table, and bottom CTA.
+- `src/components/CookieConsent.tsx` + `src/lib/consent.ts` — GA4 consent banner; the gtag snippet is in `index.html` `<head>` and reads the same storage key.
 - `src/components/ui/` — shadcn/ui primitives (do not edit manually; use the shadcn CLI to add/update components).
 
 ### Styling

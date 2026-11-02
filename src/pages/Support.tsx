@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -7,10 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SupportResult from "@/components/SupportResult";
 import { getSupabase } from "@/lib/supabase";
+import { errorId, fieldA11y } from "@/lib/formA11y";
 import {
   CATEGORIES, SUPPORT_EMAIL, deviceLabel, submitSupport, supportErrorCopy, validateSupportForm, SupportError,
 } from "@/lib/support";
+
+type Field = "category" | "subject" | "description";
+const FIELD_ORDER: Field[] = ["category", "subject", "description"];
+
+const FieldError = ({ id, error }: { id: string; error?: string }) =>
+  error ? <p id={errorId(id)} className="text-sm text-destructive">{error}</p> : null;
 
 const Fallback = () => (
   <p className="text-sm text-muted-foreground">
@@ -24,9 +32,24 @@ const Support = () => {
   const [category, setCategory] = useState("");
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // form-level: sign-in or server; goes in the persistent alert region
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<Field, string>>>({});
   const [pending, setPending] = useState(false);
   const [result, setResult] = useState<{ ticket_id: string; email_sent: boolean } | null>(null);
+  const fieldRefs = {
+    category: useRef<HTMLButtonElement>(null),
+    subject: useRef<HTMLInputElement>(null),
+    description: useRef<HTMLTextAreaElement>(null),
+  };
+  const resultHeading = useRef<HTMLHeadingElement>(null);
+
+  // Success swaps the form for the result: move focus there (the status region announces it too).
+  useEffect(() => { if (result) resultHeading.current?.focus(); }, [result]);
+
+  const edit = (field: Field, set: (v: string) => void) => (v: string) => {
+    set(v);
+    setFieldErrors(f => (f[field] ? { ...f, [field]: undefined } : f));
+  };
 
   useEffect(() => {
     const sb = getSupabase();
@@ -56,7 +79,14 @@ const Support = () => {
     e.preventDefault();
     if (pending || !session) return; // double click → one ticket
     const v = validateSupportForm({ category, subject, description });
-    if (!v.ok) { setError(Object.values(v.errors)[0] ?? ""); return; }
+    if ("errors" in v) { // (strictNullChecks is off, so `!v.ok` does not narrow)
+      setFieldErrors(v.errors);
+      setError("");
+      const first = FIELD_ORDER.find(f => v.errors[f]);
+      if (first) fieldRefs[first].current?.focus();
+      return;
+    }
+    setFieldErrors({});
     setPending(true);
     setError("");
     try {
@@ -78,8 +108,13 @@ const Support = () => {
   return (
     <div className="min-h-screen bg-background">
       <Nav />
-      <div className="max-w-xl mx-auto px-6 py-24 space-y-6">
+      <main className="max-w-xl mx-auto px-6 py-24 space-y-6">
         <h1 className="text-3xl font-semibold text-foreground">Contact support</h1>
+        {/* Live regions stay mounted so screen readers announce text put into them. */}
+        <div role="status" aria-live="polite" className="sr-only">
+          {result ? `Ticket ${result.ticket_id} created.` : ""}
+        </div>
+        <div role="alert" className="text-sm text-destructive empty:hidden">{error}</div>
         {loading ? <p className="text-muted-foreground">Loading…</p>
         : !session ? (
           <div className="space-y-4">
@@ -88,44 +123,43 @@ const Support = () => {
               <Button onClick={() => signIn("google")}>Sign in with Google</Button>
               <Button variant="outline" onClick={() => signIn("github")}>GitHub</Button>
             </div>
-            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             <Fallback />
           </div>
         ) : result ? (
-          <div role="status" className="space-y-3">
-            <p className="text-lg">Ticket <strong>{result.ticket_id}</strong> created.</p>
-            <p>{result.email_sent
-              ? "We've emailed you a copy — reply to it to add details."
-              : "We couldn't email you a copy. Note the ticket number; we'll reply to your account email."}</p>
-            <Button variant="outline" onClick={() => setResult(null)}>Send another</Button>
-          </div>
+          <SupportResult ref={resultHeading} result={result} onAnother={() => setResult(null)} />
         ) : (
           <form onSubmit={onSubmit} noValidate className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="support-category">Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="support-category"><SelectValue placeholder="Choose…" /></SelectTrigger>
+              <Select value={category} onValueChange={edit("category", setCategory)}>
+                <SelectTrigger id="support-category" ref={fieldRefs.category} {...fieldA11y("support-category", fieldErrors.category)}>
+                  <SelectValue placeholder="Choose…" />
+                </SelectTrigger>
                 <SelectContent>{CATEGORIES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
               </Select>
+              <FieldError id="support-category" error={fieldErrors.category} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="support-subject">Subject</Label>
-              <Input id="support-subject" maxLength={150} value={subject} onChange={e => setSubject(e.target.value)} />
+              <Input id="support-subject" ref={fieldRefs.subject} maxLength={150} value={subject}
+                onChange={e => edit("subject", setSubject)(e.target.value)} {...fieldA11y("support-subject", fieldErrors.subject)} />
+              <FieldError id="support-subject" error={fieldErrors.subject} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="support-description">What happened?</Label>
-              <Textarea id="support-description" rows={8} maxLength={5000} value={description} onChange={e => setDescription(e.target.value)} />
+              <Textarea id="support-description" ref={fieldRefs.description} rows={8} maxLength={5000} value={description}
+                onChange={e => edit("description", setDescription)(e.target.value)} {...fieldA11y("support-description", fieldErrors.description)} />
+              <FieldError id="support-description" error={fieldErrors.description} />
             </div>
             <p className="text-sm text-muted-foreground">
               Replies go to: {session.user.email}{" "}
               <button type="button" className="underline" onClick={signOut}>Not you? Sign out</button>
             </p>
-            {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
             <Button type="submit" disabled={pending}>{pending ? "Sending…" : "Send"}</Button>
             <Fallback />
           </form>
         )}
-      </div>
+      </main>
       <Footer />
     </div>
   );

@@ -10,9 +10,11 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Methodology from "./pages/Methodology";
 import NotFound from "./pages/NotFound";
+import CookieConsent from "./components/CookieConsent";
 
 const Plan = lazy(() => import("./pages/Plan"));
 const Support = lazy(() => import("./pages/Support"));
+const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 
 const queryClient = new QueryClient();
 
@@ -30,10 +32,12 @@ const App = () => (
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/account" element={<Navigate to="/account/plan" replace />} />
           <Route path="/account/plan" element={<Suspense fallback={null}><Plan /></Suspense>} />
+          <Route path="/account/delete" element={<Suspense fallback={null}><DeleteAccount /></Suspense>} />
           <Route path="/support" element={<Suspense fallback={null}><Support /></Suspense>} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE — and to scripts/static-routes.mjs */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <CookieConsent />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
