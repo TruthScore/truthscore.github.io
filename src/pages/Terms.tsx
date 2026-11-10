@@ -11,7 +11,7 @@ const Terms = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Terms of Service</h1>
-          <p className="text-muted-foreground">Last updated: 29 October 2026</p>
+          <p className="text-muted-foreground">Last updated: 2 November 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -74,14 +74,21 @@ const Terms = () => {
               month. If we add another plan or billing period, the price and period shown at
               checkout apply to it and the rest of this section applies as written.
             </p>
+            <p className="text-muted-foreground">
+              Dedicated is sold to customers whose billing address is in the United Kingdom, the
+              United States, Canada, Australia, New Zealand or an English-speaking Caribbean country
+              or territory. If you subscribe with a billing address anywhere else, we cancel the
+              subscription straight away and refund your payment in full.
+            </p>
 
             <h3 className="text-base font-medium text-foreground">5.1 Billing cycle</h3>
             <p className="text-muted-foreground">
               Dedicated is a monthly subscription. We charge your card when you subscribe, and the
               same amount again on the same day each following month until you cancel. Payments are
               processed by our payment provider, Stripe; we never see or store your full card
-              details. The price shown at checkout is the price you pay, including UK VAT where we
-              are required to charge it.
+              details. Stripe may show the price converted into your local currency; the amount
+              shown at checkout is the amount you pay, including any VAT or sales tax we are required
+              to charge.
             </p>
 
             <h3 className="text-base font-medium text-foreground">5.2 Cancelling</h3>
@@ -90,9 +97,12 @@ const Terms = () => {
               <a href="mailto:billing@truthscore.ai" className="text-primary hover:underline">
                 billing@truthscore.ai
               </a>{" "}
-              from the address on your account. Once your account page offers "Manage
-              subscription", you will also be able to cancel there. Cancelling stops the next
-              payment. You keep
+              from the address on your account, or yourself with "Manage subscription" on your{" "}
+              <a href="/account/plan" className="text-primary hover:underline">
+                account page
+              </a>
+              , which also lets you update your card and see your invoices. Cancelling stops the
+              next payment. You keep
               Dedicated until the end of the month you have already paid for, and then your account
               moves to the Free plan. We do not delete your account or your scoring history when
               you cancel; features that are part of Dedicated only are locked again until you
@@ -180,7 +190,7 @@ const Terms = () => {
             <p className="text-muted-foreground">
               If a monthly payment fails, we will email you and try the payment again a few times
               over the following two weeks. You keep Dedicated while we retry. To update your card,
-              email us (or, once it is available, use your account page). If the payment still hasn't gone
+              use "Manage subscription" on your account page, or email us. If the payment still hasn't gone
               through after the last attempt, your subscription ends and your account moves to the
               Free plan. You won't owe us for the unpaid month, and you can subscribe again
               whenever you like.
