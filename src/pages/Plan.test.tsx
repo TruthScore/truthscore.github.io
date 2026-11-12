@@ -47,11 +47,11 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("/account/plan — signed out", () => {
-  it("before 7 October keeps today's copy and offers sign-in, without calling the engine", async () => {
+  it("before Dedicated is on sale shows the opens-soon copy and offers sign-in, without calling the engine", async () => {
     const { fn } = mockFetch({});
     renderAt("/account/plan");
-    expect(await screen.findByRole("heading", { level: 1 })).toHaveProperty("textContent", "Dedicated opens 7 October");
-    expect(screen.getByText("Opens 7 October.")).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1 })).toHaveProperty("textContent", "Dedicated opens soon");
+    expect(screen.getByText("Opens soon.")).toBeTruthy();
     expect(screen.getByText("Email me when it opens")).toBeTruthy();
     expect(screen.queryByText("Upgrade to Dedicated")).toBeNull();
     fireEvent.click(screen.getByText("Continue with Google"));

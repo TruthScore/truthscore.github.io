@@ -17,7 +17,7 @@ import { redirectTo } from "@/lib/redirect";
 // user in, shows their plan, and asks the engine for a Stripe URL.
 //
 // Until billing is switched on the engine answers 503 BILLING_DISABLED, and the page keeps
-// the "Dedicated opens 7 October" copy (ship design decision 4).
+// the "Dedicated opens soon" copy.
 
 type Provider = "google" | "github";
 
@@ -222,7 +222,7 @@ const Plan = () => {
   const profile = status.kind === "signed-in" ? status.profile : null;
   const currentPlan = profile?.plan ?? null;
   // Signed-out visitors can't be told whether billing is on (the engine answers per user),
-  // so before the opening day they see the date, and after it a prompt to sign in.
+  // so until DEDICATED_ON_SALE they see "opens soon", and after it a prompt to sign in.
   const showOpensCopy = billingClosed || (status.kind !== "signed-in" && !dedicatedHasOpened());
 
   const heading = profile

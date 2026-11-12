@@ -1,7 +1,7 @@
 import { Chrome, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { PLANS, DEDICATED_OPENS } from "@/lib/plans";
+import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
 
 // ── Section 1: How it works ───────────────────────────────────────────────────
 
@@ -125,7 +125,7 @@ const Features = () => {
                   className={`w-full ${plan.recommended ? "bg-primary text-primary-foreground hover:bg-primary/90" : ""}`}
                   size="sm"
                 >
-                  <Link to="/account/plan">{plan.price ? `Opens ${DEDICATED_OPENS}` : "Get started"}</Link>
+                  <Link to="/account/plan">{plan.price ? (dedicatedHasOpened() ? "Upgrade" : `Opens ${DEDICATED_OPENS}`) : "Get started"}</Link>
                 </Button>
               </div>
             ))}
