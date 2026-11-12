@@ -2,15 +2,16 @@
 // plans/2026-09-28-ship-design.md, decisions 2, 4 and 5). One table for the
 // landing page and /account/plan so the two can't disagree.
 //
-// Dedicated is bought on the website via Stripe from 7 October (engine E#36/E#38).
-// Until then it is shown with its opening date, never as "coming soon".
+// Dedicated is bought on the website via Stripe (engine E#36/E#38). Until it goes on sale it is
+// shown as opening soon, with no date (the 7 October date passed with billing still parked).
+// Flip DEDICATED_ON_SALE to true in the same change that turns billing on in prod (E#36 step 8).
 
-export const DEDICATED_OPENS = "7 October";
-// Midnight UK time on the opening day. Only used to pick copy for signed-out visitors,
-// who can't be told whether billing is switched on (the engine answers that per user).
-export const DEDICATED_OPENS_AT = new Date("2026-10-07T00:00:00+01:00");
+export const DEDICATED_OPENS = "soon";
+// Signed-out visitors can't be told whether billing is switched on (the engine answers that per
+// user), so this site-wide switch picks their copy.
+export const DEDICATED_ON_SALE = false;
 
-export const dedicatedHasOpened = (now: Date = new Date()) => now >= DEDICATED_OPENS_AT;
+export const dedicatedHasOpened = () => DEDICATED_ON_SALE;
 
 export type Plan = {
   name: string;
