@@ -1,37 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Commands
 
-```bash
-# Install dependencies (bun.lockb is present; prefer bun over npm)
-bun install
-
-# Start dev server (hot reload)
-bun run dev
-
-# Production build
-bun run build
-
-# Lint
-bun run lint
-
-# Tests (Vitest + jsdom; src/**/*.test.ts(x))
-bun run test
-
-# Preview production build locally
-bun run preview
-```
+Use **bun**, not npm (`bun.lockb` is the lockfile): `bun install`, then `bun run <script>` from
+`package.json` (`dev`, `build`, `lint`, `test`, `preview`).
 
 ## Architecture
 
-This is a **Vite + React + TypeScript** single-page application using **shadcn/ui** components and **Tailwind CSS**. It is a marketing/landing page for TruthScore.ai.
+The TruthScore.ai marketing site plus the signed-in account pages (Vite + React SPA).
 
 ### Routing
 
 - `src/App.tsx` — Root component. Sets up `react-router-dom` routes, wraps with `QueryClientProvider` and `TooltipProvider`. New routes go here, above the `*` catch-all, **and in `scripts/static-routes.mjs`** (post-build route shells + sitemap).
-- `src/pages/Index.tsx` — The landing page, currently composed of `<Hero />` and `<Features />`.
 - `src/pages/{Changelog,Privacy,Terms,Methodology}.tsx` — content pages; `src/pages/Plan.tsx` — `/account/plan`.
 - `src/pages/Support.tsx` — `/support`, **lazy-loaded**: with `/account/delete`, the only routes that load Supabase auth
   (`src/lib/supabase.ts`, PKCE) and posts to the engine's `POST /support`. `src/lib/support.ts` is
@@ -40,31 +20,13 @@ This is a **Vite + React + TypeScript** single-page application using **shadcn/u
   the Google Play "Delete account URL". Calls the engine's `DELETE /user/account`
   (`src/lib/account.ts`), which needs a sign-in under 10 minutes old — the page asks for a fresh
   sign-in itself when the stored session is older.
-- `src/pages/NotFound.tsx` — 404 fallback.
 - `src/pages/Plan.tsx` — `/account/plan` (and `/account` redirects there): Supabase sign-in, current plan, Stripe Checkout / customer portal via the engine's `/billing/*` (engine E#37). Lazy route. Auth is the shared `getSupabase()` client in `src/lib/supabase.ts` (PKCE, same session as /support); engine calls are `src/lib/engine.ts`.
 
 ### Components
 
-- `src/components/Hero.tsx` — Above-the-fold section with animated hero visual, CTA buttons, and social proof.
-- `src/components/Features.tsx` — Features carousel (horizontal scroll/snap), pricing comparison table, and bottom CTA.
 - `src/components/CookieConsent.tsx` + `src/lib/consent.ts` — GA4 consent banner; the gtag snippet is in `index.html` `<head>` and reads the same storage key.
 - `src/components/ui/` — shadcn/ui primitives (do not edit manually; use the shadcn CLI to add/update components).
 
 ### Styling
 
-- **Color scheme**: Slate and orange (`orange-600` as the primary brand color).
 - CSS custom properties (HSL) are defined in `src/index.css` under `@layer base`. This is the single source of truth for the design token system — modify colors/radius here, not in `tailwind.config.ts`.
-- `tailwind.config.ts` maps those CSS variables to Tailwind color names (`primary`, `accent`, etc.).
-- Dark mode is class-based (`darkMode: ["class"]`) but not currently implemented in the UI.
-
-### Path Aliases
-
-`@/` maps to `src/` (configured in `tsconfig.app.json` and Vite).
-
-### Adding shadcn/ui Components
-
-```bash
-npx shadcn@latest add <component-name>
-```
-
-Components land in `src/components/ui/`.
