@@ -1,5 +1,5 @@
 import { Chrome } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import InstallButton from "@/components/InstallButton";
 
 const Hero = () => {
   return (
@@ -32,10 +32,10 @@ const Hero = () => {
 
             {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
+              <InstallButton className="gap-2">
                 <Chrome className="h-4 w-4" />
                 Add to Chrome — Free
-              </Button>
+              </InstallButton>
             </div>
           </div>
 

@@ -1,6 +1,7 @@
 import { Scale, Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import InstallButton from "@/components/InstallButton";
 import {
   Sheet,
   SheetContent,
@@ -53,9 +54,7 @@ const Nav = () => {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center">
-          <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Add to Chrome
-          </Button>
+          <InstallButton size="sm">Add to Chrome</InstallButton>
         </div>
 
         {/* Mobile hamburger */}
@@ -83,9 +82,9 @@ const Nav = () => {
               <Link to="/changelog" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
                 Changelog
               </Link>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full mt-2">
+              <InstallButton size="sm" className="w-full mt-2">
                 Add to Chrome
-              </Button>
+              </InstallButton>
             </div>
           </SheetContent>
         </Sheet>
