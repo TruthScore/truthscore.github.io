@@ -9,7 +9,7 @@
 export const DEDICATED_OPENS = "soon";
 // Signed-out visitors can't be told whether billing is switched on (the engine answers that per
 // user), so this site-wide switch picks their copy.
-export const DEDICATED_ON_SALE = false;
+export const DEDICATED_ON_SALE = true;
 
 export const dedicatedHasOpened = () => DEDICATED_ON_SALE;
 
