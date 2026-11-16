@@ -1,6 +1,7 @@
 import { Chrome, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import InstallButton from "@/components/InstallButton";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
 
 // ── Section 1: How it works ───────────────────────────────────────────────────
@@ -140,10 +141,10 @@ const Features = () => {
             Start reading with more confidence.
           </h2>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2">
+            <InstallButton className="gap-2">
               <Chrome className="h-4 w-4" />
               Add to Chrome — Free
-            </Button>
+            </InstallButton>
           </div>
         </div>
       </section>

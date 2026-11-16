@@ -6,3 +6,8 @@ export const API_BASE = (
 ).replace(/\/$/, "");
 
 export const SUPPORT_EMAIL = "hello@truthscore.ai";
+
+// The Chrome Web Store listing (store item id from truthscore-chrome-ext-v2
+// docs/web-store-permissions.md). Every "Add to Chrome" button links here.
+export const CHROME_STORE_URL =
+  "https://chromewebstore.google.com/detail/kihgkihiipdehkmgabojgflmkoijcmog";
