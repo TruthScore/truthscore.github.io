@@ -11,7 +11,7 @@ const Privacy = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Privacy Policy</h1>
-          <p className="text-muted-foreground">Last updated: 7 October 2026</p>
+          <p className="text-muted-foreground">Last updated: 17 November 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -60,6 +60,14 @@ const Privacy = () => {
                 scores and preventing abuse of the free allowance, and never for advertising or tracking
                 you across sites. If you later create an account on that device, the identifier is
                 linked to your account so the allowance carries over.
+              </li>
+              <li>
+                <span className="text-foreground font-medium">Which version of the score view you saw</span> — when
+                we test a new design, each score request says which version you were shown (for
+                example "classic" or "new"), the app or extension version, and whether you chose it
+                yourself. It is stored with your account, or with your anonymous id if you have none,
+                and is used only to compare the designs. We do not record your clicks or what you
+                do on the page.
               </li>
             </ul>
             <p className="text-muted-foreground">
