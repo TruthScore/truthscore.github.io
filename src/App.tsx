@@ -29,6 +29,9 @@ const App = () => (
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          {/* Legal pages are linked as .html in store listings / the Google OAuth consent screen */}
+          <Route path="/privacy.html" element={<Navigate to="/privacy" replace />} />
+          <Route path="/terms.html" element={<Navigate to="/terms" replace />} />
           <Route path="/methodology" element={<Methodology />} />
           <Route path="/account" element={<Navigate to="/account/plan" replace />} />
           <Route path="/account/plan" element={<Suspense fallback={null}><Plan /></Suspense>} />
