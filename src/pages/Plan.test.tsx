@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import Plan from "./Plan";
 import { mockFetch, type Reply } from "@/test/fetch-mock";
 import { auth, fakeClient, resetFakeSupabase, signIn, state } from "@/test/fake-supabase";
+import { SIGN_OUT_SCOPE } from "@/lib/config";
 
 const h = vi.hoisted(() => ({ opened: false, redirect: vi.fn() }));
 
@@ -80,11 +81,19 @@ describe("/account/plan — signed out", () => {
     expect(calls[0].init.headers).toMatchObject({ Authorization: "Bearer shared" });
   });
 
-  it("shows a provider error from the OAuth return and strips it from the URL", async () => {
+  it("maps an OAuth return error to fixed copy and strips it from the URL", async () => {
     mockFetch({});
-    renderAt("/account/plan?error=access_denied&error_description=User+cancelled");
-    expect(await screen.findByText("Sign-in didn't complete: User cancelled")).toBeTruthy();
+    renderAt("/account/plan?error=access_denied&error_description=Visit+example.com+now");
+    expect(await screen.findByText("Sign-in was cancelled. You can try again below.")).toBeTruthy();
+    expect(screen.queryByText(/example\.com/)).toBeNull();
     expect(window.location.search).toBe("");
+  });
+
+  it("shows generic copy for an unknown OAuth error code", async () => {
+    mockFetch({});
+    renderAt("/account/plan?error=something_odd&error_description=Call+this+number");
+    expect(await screen.findByText("Sign-in didn't complete. Please try again.")).toBeTruthy();
+    expect(screen.queryByText(/Call this number/)).toBeNull();
   });
 
   it("signs out through the shared client", async () => {
@@ -93,7 +102,7 @@ describe("/account/plan — signed out", () => {
     renderAt("/account/plan");
     fireEvent.click(await screen.findByText("Sign out"));
     expect(await screen.findByText("Continue with Google")).toBeTruthy();
-    expect(auth.signOut).toHaveBeenCalled();
+    expect(auth.signOut).toHaveBeenCalledWith({ scope: SIGN_OUT_SCOPE });
   });
 });
 
@@ -239,9 +248,11 @@ describe("/account/plan — Stripe returns", () => {
     expect(screen.getByText("Your plan: Free")).toBeTruthy();
   });
 
-  it("?checkout=success while signed out asks for the paying account", async () => {
+  it("?checkout=success while signed out is ignored: no checkout message, just sign-in", async () => {
     mockFetch({});
     renderAt("/account/plan?checkout=success");
-    expect(await screen.findByText(/Sign in with the account you paid with/)).toBeTruthy();
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    expect(screen.queryByText(/Checkout complete/)).toBeNull();
+    expect(window.location.search).toBe("");
   });
 });

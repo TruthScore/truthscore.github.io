@@ -24,7 +24,7 @@ The TruthScore.ai marketing site plus the signed-in account pages (Vite + React 
 
 ### Components
 
-- `src/components/CookieConsent.tsx` + `src/lib/consent.ts` — GA4 consent banner; the gtag snippet is in `index.html` `<head>` and reads the same storage key.
+- `src/components/CookieConsent.tsx` + `src/lib/consent.ts` — GA4 consent banner. `src/lib/analytics.ts` adds gtag.js only after Accept (Consent Mode basic) and sends page views by hand with origin + path only (`<PageViews />` in `App.tsx`). Fonts are self-hosted in `public/fonts/`.
 - `src/components/ui/` — shadcn/ui primitives (do not edit manually; use the shadcn CLI to add/update components).
 
 ### Styling

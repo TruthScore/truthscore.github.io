@@ -11,7 +11,7 @@ const Privacy = () => {
         <div className="mb-10 space-y-2">
           <p className="font-mono text-xs text-muted-foreground uppercase tracking-wide">Legal</p>
           <h1 className="text-3xl font-semibold text-foreground">Privacy Policy</h1>
-          <p className="text-muted-foreground">Last updated: 17 November 2026</p>
+          <p className="text-muted-foreground">Last updated: 19 November 2026</p>
         </div>
 
         <div className="prose-custom space-y-8 text-sm text-foreground leading-relaxed">
@@ -33,9 +33,10 @@ const Privacy = () => {
             <p className="text-muted-foreground">
               If you are simply browsing this marketing website, we use Google Analytics to understand
               how visitors find and use it (pages viewed, approximate location, device and browser
-              type, and the site that referred you). Analytics cookies are only set if you click
-              Accept in the cookie banner; until then, and if you decline, Google receives only
-              cookieless signals that do not identify you or your device. You can change your choice
+              type, and the site that referred you). Google Analytics is only loaded, and its
+              cookies only set, if you click Accept in the cookie banner; until then, and if you
+              decline, nothing is sent to Google. The fonts on this site are served from our own
+              domain, not by a third party. You can change your choice
               at any time via "Cookie settings" in the site footer. We do not use advertising
               cookies or fingerprinting, and Google Analytics does not log or store your IP address.
             </p>

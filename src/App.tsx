@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Index from "./pages/Index";
 import Changelog from "./pages/Changelog";
 import Privacy from "./pages/Privacy";
@@ -11,6 +11,8 @@ import Terms from "./pages/Terms";
 import Methodology from "./pages/Methodology";
 import NotFound from "./pages/NotFound";
 import CookieConsent from "./components/CookieConsent";
+import { applyStoredConsent } from "./lib/consent";
+import { trackPageView } from "./lib/analytics";
 
 const Plan = lazy(() => import("./pages/Plan"));
 const Support = lazy(() => import("./pages/Support"));
@@ -18,12 +20,25 @@ const DeleteAccount = lazy(() => import("./pages/DeleteAccount"));
 
 const queryClient = new QueryClient();
 
+// One page_view per route change (path only), and only once analytics has been accepted.
+const PageViews = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    applyStoredConsent();
+  }, []);
+  useEffect(() => {
+    trackPageView();
+  }, [pathname]);
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <PageViews />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/changelog" element={<Changelog />} />
