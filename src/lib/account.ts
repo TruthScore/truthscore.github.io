@@ -54,18 +54,31 @@ export const BILLING_UNREACHABLE_COPY = {
   waitTitle: "Don't delete yet.",
   wait: 'Try again later, once the connection to Stripe is restored. Cleaner, but not immediate.',
   anywayTitle: 'Delete your account anyway.',
-  anyway: "You'll then need to cancel your subscription with Stripe, our payment provider, yourself. " +
-    'Immediate, but extra effort, and if you forget, Stripe will keep charging you.',
+  anyway: "Our support team will then cancel any remaining subscription for you and email you to confirm. " +
+    "Immediate, and you don't need to do anything else.",
   later: 'Try again later',
   deleteAnyway: 'Delete anyway',
-  reminder: 'Remember to cancel your subscription with Stripe.',
+  /** After "Delete anyway", when the engine opened a support ticket to finish the cancellation. */
+  ticketOpened: (id: string) =>
+    `We've opened support ticket ${id}. We'll cancel any remaining subscription for you and email you to confirm. ` +
+    "You don't need to do anything.",
+  /** After "Delete anyway", when no ticket could be opened. */
+  noTicket: `Please email ${SUPPORT_EMAIL} so we can cancel your subscription for you.`,
 };
+
+/** The engine's support channel for tickets opened from this site. */
+export const SUPPORT_CHANNEL = 'Website';
 
 export class DeleteAccountError extends Error {
   constructor(public readonly code: string) { super(code); this.name = 'DeleteAccountError'; }
 }
 
-export type DeleteAccountResult = { email_sent: boolean; billing_unverified: boolean };
+export type DeleteAccountResult = {
+  email_sent: boolean;
+  billing_unverified: boolean;
+  /** Set when the engine opened a support ticket to cancel the subscription by hand (e.g. "TCK-1042"). */
+  support_ticket_id?: string;
+};
 
 export async function deleteAccount(
   token: string,
@@ -73,7 +86,10 @@ export async function deleteAccount(
   opts: { confirmBillingUnreachable?: boolean } = {},
 ): Promise<DeleteAccountResult> {
   const payload: Record<string, unknown> = { confirm: CONFIRM_WORD };
-  if (opts.confirmBillingUnreachable) payload.confirm_billing_unreachable = true;
+  if (opts.confirmBillingUnreachable) {
+    payload.confirm_billing_unreachable = true;
+    payload.channel = SUPPORT_CHANNEL;
+  }
   let res: Response;
   try {
     res = await fetchImpl(`${API_BASE}/user/account`, {
@@ -86,5 +102,11 @@ export async function deleteAccount(
   }
   const body = await res.json().catch(() => null);
   if (!res.ok || body?.data?.deleted !== true) throw new DeleteAccountError(body?.code || `HTTP_${res.status}`);
-  return { email_sent: body.data.email_sent !== false, billing_unverified: body.data.billing_unverified === true };
+  const result: DeleteAccountResult = {
+    email_sent: body.data.email_sent !== false,
+    billing_unverified: body.data.billing_unverified === true,
+  };
+  const ticket = body.data.support_ticket_id;
+  if (typeof ticket === 'string' && ticket.trim()) result.support_ticket_id = ticket.trim();
+  return result;
 }
