@@ -2,8 +2,8 @@
 
 ## Commands
 
-Use **bun**, not npm (`bun.lockb` is the lockfile): `bun install`, then `bun run <script>` from
-`package.json` (`dev`, `build`, `lint`, `test`, `preview`).
+Use **bun** 1.4.5, not npm (`bun.lock` is the only lockfile): `bun install`, then `bun run <script>` from
+`package.json` (`dev`, `build`, `lint`, `test`, `preview`). Install from the lockfile with `bun install --frozen-lockfile`.
 
 ## Architecture
 
