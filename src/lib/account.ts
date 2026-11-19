@@ -43,22 +43,48 @@ const COPY: Record<string, string> = {
 export const deleteErrorCopy = (code?: string) =>
   (code && COPY[code]) || `We couldn't delete your account just now. Please email ${SUPPORT_EMAIL} and we'll do it for you.`;
 
+/**
+ * The engine couldn't reach the payment provider to cancel a subscription. The page then offers
+ * "Try again later" or "Delete anyway", which re-sends the DELETE with `confirmBillingUnreachable`.
+ */
+export const BILLING_UNREACHABLE = 'BILLING_UNREACHABLE';
+
+export const BILLING_UNREACHABLE_COPY = {
+  intro: "We can't reach our payment provider to cancel your subscription. Your options:",
+  waitTitle: "Don't delete yet.",
+  wait: 'Try again later, once the connection to Stripe is restored. Cleaner, but not immediate.',
+  anywayTitle: 'Delete your account anyway.',
+  anyway: "You'll then need to cancel your subscription with Stripe, our payment provider, yourself. " +
+    'Immediate, but extra effort, and if you forget, Stripe will keep charging you.',
+  later: 'Try again later',
+  deleteAnyway: 'Delete anyway',
+  reminder: 'Remember to cancel your subscription with Stripe.',
+};
+
 export class DeleteAccountError extends Error {
   constructor(public readonly code: string) { super(code); this.name = 'DeleteAccountError'; }
 }
 
-export async function deleteAccount(token: string, fetchImpl: typeof fetch = fetch): Promise<{ email_sent: boolean }> {
+export type DeleteAccountResult = { email_sent: boolean; billing_unverified: boolean };
+
+export async function deleteAccount(
+  token: string,
+  fetchImpl: typeof fetch = fetch,
+  opts: { confirmBillingUnreachable?: boolean } = {},
+): Promise<DeleteAccountResult> {
+  const payload: Record<string, unknown> = { confirm: CONFIRM_WORD };
+  if (opts.confirmBillingUnreachable) payload.confirm_billing_unreachable = true;
   let res: Response;
   try {
     res = await fetchImpl(`${API_BASE}/user/account`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ confirm: CONFIRM_WORD }),
+      body: JSON.stringify(payload),
     });
   } catch {
     throw new DeleteAccountError('NETWORK');
   }
   const body = await res.json().catch(() => null);
   if (!res.ok || body?.data?.deleted !== true) throw new DeleteAccountError(body?.code || `HTTP_${res.status}`);
-  return { email_sent: body.data.email_sent !== false };
+  return { email_sent: body.data.email_sent !== false, billing_unverified: body.data.billing_unverified === true };
 }
