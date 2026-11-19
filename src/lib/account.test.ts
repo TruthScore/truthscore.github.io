@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { deleteAccount, deleteErrorCopy, needsFreshSignIn, signInAgeSeconds } from './account';
+import { BILLING_UNREACHABLE, deleteAccount, deleteErrorCopy, needsFreshSignIn, signInAgeSeconds } from './account';
 
 const NOW = 1_800_000_000_000;
 const jwt = (payload: object) => `h.${btoa(JSON.stringify(payload)).replace(/=+$/, '')}.sig`;
@@ -19,7 +19,7 @@ describe('account deletion lib', () => {
 
   it('sends DELETE with the bearer and the confirmation', async () => {
     const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'success', data: { deleted: true, email_sent: true } })));
-    await expect(deleteAccount('tok', f)).resolves.toEqual({ email_sent: true });
+    await expect(deleteAccount('tok', f)).resolves.toEqual({ email_sent: true, billing_unverified: false });
     const [url, init] = f.mock.calls[0];
     expect(url).toBe('https://truthscore.taggmedia.cloud/api/v1/user/account');
     expect(init.method).toBe('DELETE');
@@ -37,5 +37,25 @@ describe('account deletion lib', () => {
   it('every failure offers the email route', () => {
     expect(deleteErrorCopy('NETWORK')).toContain('support@truthscore.ai');
     expect(deleteErrorCopy('SUBSCRIPTION_ACTIVE')).toContain('support@truthscore.ai');
+  });
+
+  it('surfaces BILLING_UNREACHABLE (503) as its own code', async () => {
+    const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'error', code: 'BILLING_UNREACHABLE' }), { status: 503 }));
+    await expect(deleteAccount('tok', f)).rejects.toMatchObject({ code: BILLING_UNREACHABLE });
+  });
+
+  it('re-sends with confirm_billing_unreachable and reports billing_unverified', async () => {
+    const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      status: 'success', data: { deleted: true, email_sent: true, billing_unverified: true },
+    })));
+    await expect(deleteAccount('tok', f, { confirmBillingUnreachable: true }))
+      .resolves.toEqual({ email_sent: true, billing_unverified: true });
+    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ confirm: 'DELETE', confirm_billing_unreachable: true });
+  });
+
+  it('with the flag, an active subscription still gets the existing copy', async () => {
+    const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 'error', code: 'SUBSCRIPTION_ACTIVE' }), { status: 409 }));
+    await expect(deleteAccount('tok', f, { confirmBillingUnreachable: true })).rejects.toMatchObject({ code: 'SUBSCRIPTION_ACTIVE' });
+    expect(deleteErrorCopy('SUBSCRIPTION_ACTIVE')).toContain('active subscription');
   });
 });

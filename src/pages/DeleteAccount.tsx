@@ -3,13 +3,18 @@ import type { Session } from "@supabase/supabase-js";
 import { Link } from "react-router-dom";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { getSupabase } from "@/lib/supabase";
 import { SUPPORT_EMAIL } from "@/lib/support";
 import {
-  CONFIRM_WORD, DeleteAccountError, SIGN_IN_AGAIN, deleteAccount, deleteErrorCopy, needsFreshSignIn,
+  BILLING_UNREACHABLE, BILLING_UNREACHABLE_COPY as BU, CONFIRM_WORD, DeleteAccountError, SIGN_IN_AGAIN,
+  deleteAccount, deleteErrorCopy, needsFreshSignIn, type DeleteAccountResult,
 } from "@/lib/account";
 
 // /account/delete is the Google Play "Delete account URL" (and the mobile app's Delete account
@@ -31,7 +36,8 @@ const DeleteAccount = () => {
   const [typed, setTyped] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
-  const [done, setDone] = useState<{ email_sent: boolean } | null>(null);
+  const [done, setDone] = useState<DeleteAccountResult | null>(null);
+  const [billingChoice, setBillingChoice] = useState(false);
 
   useEffect(() => {
     const sb = getSupabase();
@@ -57,23 +63,32 @@ const DeleteAccount = () => {
 
   const signOut = () => getSupabase().auth.signOut().catch(() => undefined);
 
-  const onDelete = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pending || !session || typed.trim() !== CONFIRM_WORD) return;
+  const runDelete = async (confirmBillingUnreachable: boolean) => {
+    if (pending || !session) return;
     setPending(true);
     setError("");
     try {
-      const r = await deleteAccount(session.access_token);
+      const r = await deleteAccount(session.access_token, fetch, { confirmBillingUnreachable });
       // The server-side session is gone with the user; drop the local copy too.
       await signOut();
       setDone(r);
     } catch (err) {
       const code = err instanceof DeleteAccountError ? err.code : undefined;
-      setError(deleteErrorCopy(code));
-      if (code && SIGN_IN_AGAIN.has(code)) void signOut();
+      if (code === BILLING_UNREACHABLE && !confirmBillingUnreachable) {
+        setBillingChoice(true);
+      } else {
+        setError(deleteErrorCopy(code));
+        if (code && SIGN_IN_AGAIN.has(code)) void signOut();
+      }
     } finally {
       setPending(false);
     }
+  };
+
+  const onDelete = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typed.trim() !== CONFIRM_WORD) return;
+    void runDelete(false);
   };
 
   const signInButtons = (
@@ -136,6 +151,7 @@ const DeleteAccount = () => {
                 ? "We've emailed you a confirmation."
                 : "We couldn't send a confirmation email, but the deletion is complete."}{" "}
                 You can uninstall the app and the extension.</p>
+              {done.billing_unverified && <p className="text-foreground font-medium">{BU.reminder}</p>}
             </div>
           ) : !session ? (
             <div className="space-y-4">
@@ -168,6 +184,31 @@ const DeleteAccount = () => {
           )}
           {!done && <Fallback />}
         </section>
+
+        {/* Escape, the overlay and "Try again later" all just close it; nothing is deleted. */}
+        <AlertDialog open={billingChoice} onOpenChange={setBillingChoice}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete my account</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2">
+                  <p>{BU.intro}</p>
+                  <ol className="list-decimal pl-5 space-y-1">
+                    <li><strong className="text-foreground">{BU.waitTitle}</strong> {BU.wait}</li>
+                    <li><strong className="text-foreground">{BU.anywayTitle}</strong> {BU.anyway}</li>
+                  </ol>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{BU.later}</AlertDialogCancel>
+              <AlertDialogAction className={buttonVariants({ variant: "destructive" })}
+                onClick={() => void runDelete(true)}>
+                {BU.deleteAnyway}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
       <Footer />
     </div>
