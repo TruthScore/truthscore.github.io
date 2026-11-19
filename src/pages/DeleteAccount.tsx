@@ -151,7 +151,9 @@ const DeleteAccount = () => {
                 ? "We've emailed you a confirmation."
                 : "We couldn't send a confirmation email, but the deletion is complete."}{" "}
                 You can uninstall the app and the extension.</p>
-              {done.billing_unverified && <p className="text-foreground font-medium">{BU.reminder}</p>}
+              {done.billing_unverified && <p className="text-foreground font-medium">{done.support_ticket_id
+                ? BU.ticketOpened(done.support_ticket_id)
+                : BU.noTicket}</p>}
             </div>
           ) : !session ? (
             <div className="space-y-4">

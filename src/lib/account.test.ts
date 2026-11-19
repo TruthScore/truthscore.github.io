@@ -50,7 +50,26 @@ describe('account deletion lib', () => {
     })));
     await expect(deleteAccount('tok', f, { confirmBillingUnreachable: true }))
       .resolves.toEqual({ email_sent: true, billing_unverified: true });
-    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ confirm: 'DELETE', confirm_billing_unreachable: true });
+    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ confirm: 'DELETE', confirm_billing_unreachable: true, channel: 'Website' });
+  });
+
+  it('returns support_ticket_id when the engine opened a ticket', async () => {
+    const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      status: 'success', data: { deleted: true, email_sent: true, billing_unverified: true, support_ticket_id: 'TCK-1042' },
+    })));
+    await expect(deleteAccount('tok', f, { confirmBillingUnreachable: true }))
+      .resolves.toEqual({ email_sent: true, billing_unverified: true, support_ticket_id: 'TCK-1042' });
+  });
+
+  it('omits support_ticket_id when it is missing or not a string', async () => {
+    for (const support_ticket_id of [undefined, null, '', 42]) {
+      const f = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+        status: 'success', data: { deleted: true, email_sent: true, billing_unverified: true, support_ticket_id },
+      })));
+      const r = await deleteAccount('tok', f, { confirmBillingUnreachable: true });
+      expect(r).toEqual({ email_sent: true, billing_unverified: true });
+      expect('support_ticket_id' in r).toBe(false);
+    }
   });
 
   it('with the flag, an active subscription still gets the existing copy', async () => {

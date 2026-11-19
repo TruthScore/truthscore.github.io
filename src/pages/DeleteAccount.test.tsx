@@ -36,7 +36,8 @@ describe("/account/delete — payment provider unreachable", () => {
     const dialog = await screen.findByRole("alertdialog");
     expect(dialog.textContent).toContain("We can't reach our payment provider to cancel your subscription.");
     expect(dialog.textContent).toContain("Don't delete yet.");
-    expect(dialog.textContent).toContain("if you forget, Stripe will keep charging you.");
+    expect(dialog.textContent).toContain("Our support team will then cancel any remaining subscription for you");
+    expect(dialog.textContent).not.toContain("keep charging");
     const later = screen.getByRole("button", { name: "Try again later" });
     await waitFor(() => expect(document.activeElement).toBe(later));
     fireEvent.keyDown(dialog, { key: "Escape" });
@@ -55,15 +56,31 @@ describe("/account/delete — payment provider unreachable", () => {
     expect(screen.getByRole("button", { name: "Delete my account" })).toBeTruthy();
   });
 
-  it("Delete anyway re-sends with the flag and reminds the user to cancel with Stripe", async () => {
-    const { calls } = mockFetch({ "DELETE /user/account": [unreachable, deleted({ billing_unverified: true })] });
+  it("Delete anyway re-sends with the flag and shows the support ticket", async () => {
+    const { calls } = mockFetch({
+      "DELETE /user/account": [unreachable, deleted({ billing_unverified: true, support_ticket_id: "TCK-1042" })],
+    });
     await submitDelete();
     fireEvent.click(await screen.findByRole("button", { name: "Delete anyway" }));
     expect(await screen.findByText("Your account has been deleted.")).toBeTruthy();
-    expect(screen.getByText("Remember to cancel your subscription with Stripe.")).toBeTruthy();
+    expect(screen.getByText(
+      "We've opened support ticket TCK-1042. We'll cancel any remaining subscription for you and email you to confirm. " +
+      "You don't need to do anything.",
+    )).toBeTruthy();
+    expect(screen.getByRole("status").textContent).not.toContain("Stripe");
     expect(calls).toHaveLength(2);
     expect(JSON.parse(String(calls[0].init.body))).toEqual({ confirm: "DELETE" });
-    expect(JSON.parse(String(calls[1].init.body))).toEqual({ confirm: "DELETE", confirm_billing_unreachable: true });
+    expect(JSON.parse(String(calls[1].init.body)))
+      .toEqual({ confirm: "DELETE", confirm_billing_unreachable: true, channel: "Website" });
+  });
+
+  it("Delete anyway without a ticket asks the user to email support", async () => {
+    mockFetch({ "DELETE /user/account": [unreachable, deleted({ billing_unverified: true })] });
+    await submitDelete();
+    fireEvent.click(await screen.findByRole("button", { name: "Delete anyway" }));
+    expect(await screen.findByText("Your account has been deleted.")).toBeTruthy();
+    expect(screen.getByText("Please email support@truthscore.ai so we can cancel your subscription for you.")).toBeTruthy();
+    expect(screen.getByRole("status").textContent).not.toContain("Stripe");
   });
 
   it("Delete anyway answered with SUBSCRIPTION_ACTIVE shows the existing copy", async () => {
@@ -75,10 +92,11 @@ describe("/account/delete — payment provider unreachable", () => {
     expect((await screen.findByRole("alert")).textContent).toContain("You have an active subscription.");
   });
 
-  it("a normal deletion has no Stripe reminder", async () => {
+  it("a normal deletion has no subscription note", async () => {
     mockFetch({ "DELETE /user/account": deleted() });
     await submitDelete();
     expect(await screen.findByText("Your account has been deleted.")).toBeTruthy();
-    expect(screen.queryByText("Remember to cancel your subscription with Stripe.")).toBeNull();
+    expect(screen.queryByText(/support ticket/)).toBeNull();
+    expect(screen.queryByText(/so we can cancel your subscription/)).toBeNull();
   });
 });
