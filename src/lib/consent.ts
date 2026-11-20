@@ -1,12 +1,7 @@
-// Analytics consent for Google Analytics (gtag.js, loaded in index.html with Consent Mode v2).
-// The inline snippet in index.html reads the same storage key so a returning visitor's choice
-// applies before the first page_view — keep CONSENT_KEY in sync with it.
+// Analytics consent for Google Analytics. gtag.js is only added to the page once the visitor
+// has accepted (src/lib/analytics.ts); a returning visitor's stored choice is applied on start.
 
-declare global {
-  interface Window {
-    gtag?: (...args: unknown[]) => void;
-  }
-}
+import { disableAnalytics, enableAnalytics, trackPageView } from "./analytics";
 
 export type Consent = "granted" | "denied";
 
@@ -28,8 +23,18 @@ export function setConsent(value: Consent): void {
   } catch {
     // Storage blocked: the choice applies to this page view only.
   }
-  window.gtag?.("consent", "update", { analytics_storage: value });
-  if (value === "denied") clearAnalyticsCookies();
+  if (value === "granted") {
+    enableAnalytics();
+    trackPageView();
+  } else {
+    disableAnalytics();
+    clearAnalyticsCookies();
+  }
+}
+
+/** On start-up: load analytics only for a visitor who accepted earlier. */
+export function applyStoredConsent(): void {
+  if (getConsent() === "granted") enableAnalytics();
 }
 
 // Withdrawing consent stops new cookies, but _ga cookies already set would linger — remove them.

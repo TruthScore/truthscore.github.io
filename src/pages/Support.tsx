@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SupportResult from "@/components/SupportResult";
 import { getSupabase } from "@/lib/supabase";
+import { SIGN_OUT_SCOPE } from "@/lib/config";
 import { errorId, fieldA11y } from "@/lib/formA11y";
 import {
   CATEGORIES, SUPPORT_EMAIL, deviceLabel, submitSupport, supportErrorCopy, validateSupportForm, SupportError,
@@ -73,7 +74,7 @@ const Support = () => {
     }
   };
 
-  const signOut = () => { void getSupabase().auth.signOut(); };
+  const signOut = () => { void getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE }).catch(() => undefined); };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

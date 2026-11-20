@@ -11,6 +11,7 @@ import {
   AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { getSupabase } from "@/lib/supabase";
+import { SIGN_OUT_SCOPE } from "@/lib/config";
 import { SUPPORT_EMAIL } from "@/lib/support";
 import {
   BILLING_UNREACHABLE, BILLING_UNREACHABLE_COPY as BU, CONFIRM_WORD, DeleteAccountError, SIGN_IN_AGAIN,
@@ -61,7 +62,7 @@ const DeleteAccount = () => {
     }
   };
 
-  const signOut = () => getSupabase().auth.signOut().catch(() => undefined);
+  const signOut = () => getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE }).catch(() => undefined);
 
   const runDelete = async (confirmBillingUnreachable: boolean) => {
     if (pending || !session) return;

@@ -5,11 +5,12 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
-import { SUPPORT_EMAIL } from "@/lib/config";
+import { SIGN_OUT_SCOPE, SUPPORT_EMAIL } from "@/lib/config";
 import { getSupabase } from "@/lib/supabase";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
 import { redirectTo } from "@/lib/redirect";
+import { readAuthError } from "@/lib/auth-errors";
 
 // /account/plan is where the extension's locked cards and daily-limit message send people
 // (PLAN_URL in truthscore-chrome-ext-v2 shared/ui/copy.js), and where Stripe Checkout and the
@@ -24,15 +25,6 @@ type Provider = "google" | "github";
 // Forget a session the engine rejected (this tab only; leaves other devices signed in).
 const dropSession = () => {
   void getSupabase().auth.signOut({ scope: "local" }).catch(() => undefined);
-};
-
-// Supabase reports a failed OAuth return as error/error_description in the query or fragment.
-const readAuthError = (search: string, hash: string): string | null => {
-  const q = new URLSearchParams(search.replace(/^\?/, ""));
-  const h = new URLSearchParams(hash.replace(/^#/, ""));
-  const error = h.get("error") || q.get("error");
-  if (!error) return null;
-  return h.get("error_description") || q.get("error_description") || error.replace(/_/g, " ");
 };
 
 const PLAN_NAMES: Record<PlanId, string> = { free: "Free", dedicated: "Dedicated", expert: "Expert" };
@@ -59,7 +51,7 @@ type Status =
   | { kind: "signed-in"; profile: Profile }
   | { kind: "error"; message: string };
 
-type ReturnNote = "confirming" | "confirmed" | "pending" | "cancelled" | "success-signed-out" | null;
+type ReturnNote = "confirming" | "confirmed" | "pending" | "cancelled" | null;
 
 const Plan = () => {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
@@ -74,7 +66,7 @@ const Plan = () => {
     const { hash, search, pathname } = window.location;
     const authError = readAuthError(search, hash);
     const checkoutReturn = readCheckoutReturn(search);
-    if (authError) setNotice(`Sign-in didn't complete: ${authError}`);
+    if (authError) setNotice(authError);
 
     const sb = getSupabase();
     const { data: sub } = sb.auth.onAuthStateChange((event) => {
@@ -93,9 +85,9 @@ const Plan = () => {
       // One-shot flags and errors out of the address bar (and out of history and screenshots).
       if (checkoutReturn || authError) window.history.replaceState(null, "", pathname);
       if (!signedIn) {
+        // Checkout flags are only acted on for a signed-in account; signed out, the page just
+        // asks for sign-in as usual.
         setStatus({ kind: "signed-out" });
-        if (checkoutReturn === "success") setReturnNote("success-signed-out");
-        if (checkoutReturn === "cancel") setReturnNote("cancelled");
         return;
       }
       const r = await fetchProfile();
@@ -146,7 +138,7 @@ const Plan = () => {
 
   const doSignOut = async () => {
     try {
-      await getSupabase().auth.signOut();
+      await getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE });
     } catch {
       dropSession();
     }
@@ -320,9 +312,6 @@ const Plan = () => {
                 {busy === "recheck" ? "Checking…" : "Check again"}
               </Button>
             </Note>
-          )}
-          {returnNote === "success-signed-out" && (
-            <Note>Checkout complete. Sign in with the account you paid with to see your plan.</Note>
           )}
           {returnNote === "cancelled" && <Note>Checkout cancelled. You haven't been charged.</Note>}
           {notice && <Note>{notice}</Note>}

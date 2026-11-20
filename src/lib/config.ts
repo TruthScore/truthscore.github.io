@@ -11,3 +11,11 @@ export const SUPPORT_EMAIL = "hello@truthscore.ai";
 // docs/web-store-permissions.md). Every "Add to Chrome" button links here.
 export const CHROME_STORE_URL =
   "https://chromewebstore.google.com/detail/kihgkihiipdehkmgabojgflmkoijcmog";
+
+/**
+ * What "Sign out" on this site ends. "global" (current behaviour) ends every session of the
+ * account, including the browser extension and the mobile app; "local" ends only this browser's
+ * session and leaves the user signed in elsewhere. A product decision: flip it here.
+ */
+export const SIGN_OUT_SCOPE: "global" | "local" = "global";
+
