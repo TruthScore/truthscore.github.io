@@ -13,9 +13,11 @@ export const CHROME_STORE_URL =
   "https://chromewebstore.google.com/detail/kihgkihiipdehkmgabojgflmkoijcmog";
 
 /**
- * What "Sign out" on this site ends. "global" (current behaviour) ends every session of the
- * account, including the browser extension and the mobile app; "local" ends only this browser's
- * session and leaves the user signed in elsewhere. A product decision: flip it here.
+ * Sign-out scopes (decided 2026-11-20). Every "Sign out" on this site ends only this browser's
+ * session and leaves the extension and the mobile app signed in. "Sign out everywhere" on
+ * /account/plan ends every session of the account.
  */
-export const SIGN_OUT_SCOPE: "global" | "local" = "global";
+export const SIGN_OUT_SCOPE = "local" as const;
+export const SIGN_OUT_EVERYWHERE_SCOPE = "global" as const;
+export const SIGN_OUT_EVERYWHERE_CONFIRM = "Signs you out of TruthScore on every device and browser.";
 

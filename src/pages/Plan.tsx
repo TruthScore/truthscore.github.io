@@ -5,7 +5,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
-import { SIGN_OUT_SCOPE, SUPPORT_EMAIL } from "@/lib/config";
+import { SIGN_OUT_EVERYWHERE_CONFIRM, SIGN_OUT_EVERYWHERE_SCOPE, SIGN_OUT_SCOPE, SUPPORT_EMAIL } from "@/lib/config";
 import { getSupabase } from "@/lib/supabase";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
@@ -56,7 +56,8 @@ type ReturnNote = "confirming" | "confirmed" | "pending" | "cancelled" | null;
 const Plan = () => {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
   const [billingClosed, setBillingClosed] = useState(readClosed);
-  const [busy, setBusy] = useState<"checkout" | "portal" | "recheck" | null>(null);
+  const [busy, setBusy] = useState<"checkout" | "portal" | "recheck" | "sign-out" | null>(null);
+  const [confirmEverywhere, setConfirmEverywhere] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [returnNote, setReturnNote] = useState<ReturnNote>(null);
   const cancelled = useRef(false);
@@ -136,12 +137,18 @@ const Plan = () => {
     }
   };
 
-  const doSignOut = async () => {
+  // "Sign out" ends this browser's session only; "Sign out everywhere" ends every session.
+  // Either way this browser's copy is dropped, even if the server call fails.
+  const doSignOut = async (scope: typeof SIGN_OUT_SCOPE | typeof SIGN_OUT_EVERYWHERE_SCOPE = SIGN_OUT_SCOPE) => {
+    setBusy("sign-out");
     try {
-      await getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE });
+      const { error } = await getSupabase().auth.signOut({ scope });
+      if (error) dropSession();
     } catch {
       dropSession();
     }
+    setBusy(null);
+    setConfirmEverywhere(false);
     setStatus({ kind: "signed-out" });
     setReturnNote(null);
     setNotice(null);
@@ -285,9 +292,39 @@ const Plan = () => {
                     {busy === "portal" ? "Opening…" : "Manage subscription"}
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={doSignOut} disabled={busy !== null}>
+                <Button size="sm" variant="ghost" onClick={() => void doSignOut()} disabled={busy !== null}>
                   Sign out
                 </Button>
+              </div>
+              <div className="w-full border-t border-border pt-3" data-testid="sign-out-everywhere">
+                {confirmEverywhere ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-foreground">{SIGN_OUT_EVERYWHERE_CONFIRM}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => void doSignOut(SIGN_OUT_EVERYWHERE_SCOPE)}
+                        disabled={busy !== null}
+                      >
+                        {busy === "sign-out" ? "Signing out…" : "Sign out everywhere"}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setConfirmEverywhere(false)} disabled={busy !== null}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="link"
+                    className="h-auto px-0 text-muted-foreground"
+                    onClick={() => setConfirmEverywhere(true)}
+                    disabled={busy !== null}
+                  >
+                    Sign out everywhere
+                  </Button>
+                )}
               </div>
             </div>
           )}
