@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import Plan from "./Plan";
 import { mockFetch, type Reply } from "@/test/fetch-mock";
 import { auth, fakeClient, resetFakeSupabase, signIn, state } from "@/test/fake-supabase";
-import { SIGN_OUT_EVERYWHERE_CONFIRM } from "@/lib/config";
+import { SIGN_OUT_EVERYWHERE_CONFIRM, SIGN_OUT_EVERYWHERE_FAILED } from "@/lib/config";
 
 const h = vi.hoisted(() => ({ opened: false, redirect: vi.fn() }));
 
@@ -123,6 +123,33 @@ describe("/account/plan — signed out", () => {
     expect(await screen.findByText("Continue with Google")).toBeTruthy();
     expect(auth.signOut).toHaveBeenCalledTimes(1);
     expect(auth.signOut).toHaveBeenCalledWith({ scope: "global" });
+    expect(state.session).toBeNull();
+  });
+
+  it("a failed Sign out everywhere keeps the user signed in here and lets them retry", async () => {
+    signIn();
+    mockFetch({ "GET /user/profile": profile("free") });
+    auth.signOut.mockImplementationOnce(async () => ({ error: { message: "server" } }) as never);
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out everywhere"));
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText(SIGN_OUT_EVERYWHERE_FAILED)).toBeTruthy();
+    expect(SIGN_OUT_EVERYWHERE_FAILED).toBe("We couldn't sign you out on other devices. Try again.");
+    expect(auth.signOut).toHaveBeenCalledTimes(1);
+    expect(state.session).not.toBeNull();
+    expect(screen.getByText("reader@example.com")).toBeTruthy();
+    expect(screen.queryByText("Continue with Google")).toBeNull();
+    // A thrown error is treated the same way.
+    auth.signOut.mockImplementationOnce(async () => { throw new Error("offline"); });
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    await waitFor(() => expect(auth.signOut).toHaveBeenCalledTimes(2));
+    expect(state.session).not.toBeNull();
+    expect(screen.getByText(SIGN_OUT_EVERYWHERE_FAILED)).toBeTruthy();
+    // Retry succeeds.
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    expect(auth.signOut).toHaveBeenLastCalledWith({ scope: "global" });
+    expect(auth.signOut).toHaveBeenCalledTimes(3);
     expect(state.session).toBeNull();
   });
 

@@ -20,4 +20,5 @@ export const CHROME_STORE_URL =
 export const SIGN_OUT_SCOPE = "local" as const;
 export const SIGN_OUT_EVERYWHERE_SCOPE = "global" as const;
 export const SIGN_OUT_EVERYWHERE_CONFIRM = "Signs you out of TruthScore on every device and browser.";
+export const SIGN_OUT_EVERYWHERE_FAILED = "We couldn't sign you out on other devices. Try again.";
 
