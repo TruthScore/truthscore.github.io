@@ -8,11 +8,11 @@ import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
 import {
   SIGN_OUT_EVERYWHERE_CONFIRM,
   SIGN_OUT_EVERYWHERE_FAILED,
-  SIGN_OUT_EVERYWHERE_SCOPE,
   SIGN_OUT_SCOPE,
   SUPPORT_EMAIL,
 } from "@/lib/config";
 import { getSupabase } from "@/lib/supabase";
+import { signOutEverywhere } from "@/lib/sign-out";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
 import { redirectTo } from "@/lib/redirect";
@@ -171,15 +171,9 @@ const Plan = () => {
   const doSignOutEverywhere = async () => {
     setBusy("sign-out");
     setEverywhereError(null);
-    let failed = false;
-    try {
-      const { error } = await getSupabase().auth.signOut({ scope: SIGN_OUT_EVERYWHERE_SCOPE });
-      failed = Boolean(error);
-    } catch {
-      failed = true;
-    }
+    const ok = await signOutEverywhere();
     setBusy(null);
-    if (failed) {
+    if (!ok) {
       setEverywhereError(SIGN_OUT_EVERYWHERE_FAILED);
       return;
     }
