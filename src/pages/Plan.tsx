@@ -5,8 +5,14 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { PLANS, DEDICATED_OPENS, dedicatedHasOpened } from "@/lib/plans";
-import { SIGN_OUT_SCOPE, SUPPORT_EMAIL } from "@/lib/config";
+import {
+  SIGN_OUT_EVERYWHERE_CONFIRM,
+  SIGN_OUT_EVERYWHERE_FAILED,
+  SIGN_OUT_SCOPE,
+  SUPPORT_EMAIL,
+} from "@/lib/config";
 import { getSupabase } from "@/lib/supabase";
+import { signOutEverywhere } from "@/lib/sign-out";
 import { fetchProfile, isPaid, openPortal, startCheckout, type PlanId, type Profile } from "@/lib/engine";
 import { pollForPaidPlan, readCheckoutReturn } from "@/lib/checkout-return";
 import { redirectTo } from "@/lib/redirect";
@@ -56,7 +62,9 @@ type ReturnNote = "confirming" | "confirmed" | "pending" | "cancelled" | null;
 const Plan = () => {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
   const [billingClosed, setBillingClosed] = useState(readClosed);
-  const [busy, setBusy] = useState<"checkout" | "portal" | "recheck" | null>(null);
+  const [busy, setBusy] = useState<"checkout" | "portal" | "recheck" | "sign-out" | null>(null);
+  const [confirmEverywhere, setConfirmEverywhere] = useState(false);
+  const [everywhereError, setEverywhereError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [returnNote, setReturnNote] = useState<ReturnNote>(null);
   const cancelled = useRef(false);
@@ -136,15 +144,40 @@ const Plan = () => {
     }
   };
 
-  const doSignOut = async () => {
-    try {
-      await getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE });
-    } catch {
-      dropSession();
-    }
+  const signedOut = () => {
+    setConfirmEverywhere(false);
+    setEverywhereError(null);
     setStatus({ kind: "signed-out" });
     setReturnNote(null);
     setNotice(null);
+  };
+
+  // "Sign out" ends this browser's session only; this browser's copy is dropped even if the
+  // server call fails.
+  const doSignOut = async () => {
+    setBusy("sign-out");
+    try {
+      const { error } = await getSupabase().auth.signOut({ scope: SIGN_OUT_SCOPE });
+      if (error) dropSession();
+    } catch {
+      dropSession();
+    }
+    setBusy(null);
+    signedOut();
+  };
+
+  // "Sign out everywhere" ends every session. If it fails, the user stays signed in here and
+  // can try again: they are never told other devices are signed out when they aren't.
+  const doSignOutEverywhere = async () => {
+    setBusy("sign-out");
+    setEverywhereError(null);
+    const ok = await signOutEverywhere();
+    setBusy(null);
+    if (!ok) {
+      setEverywhereError(SIGN_OUT_EVERYWHERE_FAILED);
+      return;
+    }
+    signedOut();
   };
 
   const upgrade = useCallback(async () => {
@@ -285,9 +318,44 @@ const Plan = () => {
                     {busy === "portal" ? "Opening…" : "Manage subscription"}
                   </Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={doSignOut} disabled={busy !== null}>
+                <Button size="sm" variant="ghost" onClick={() => void doSignOut()} disabled={busy !== null}>
                   Sign out
                 </Button>
+              </div>
+              <div className="w-full border-t border-border pt-3" data-testid="sign-out-everywhere">
+                {confirmEverywhere ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-foreground">{SIGN_OUT_EVERYWHERE_CONFIRM}</p>
+                    {everywhereError && (
+                      <p className="text-sm text-destructive" role="alert">
+                        {everywhereError}
+                      </p>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => void doSignOutEverywhere()}
+                        disabled={busy !== null}
+                      >
+                        {busy === "sign-out" ? "Signing out…" : "Sign out everywhere"}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setConfirmEverywhere(false); setEverywhereError(null); }} disabled={busy !== null}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="link"
+                    className="h-auto px-0 text-muted-foreground"
+                    onClick={() => setConfirmEverywhere(true)}
+                    disabled={busy !== null}
+                  >
+                    Sign out everywhere
+                  </Button>
+                )}
               </div>
             </div>
           )}

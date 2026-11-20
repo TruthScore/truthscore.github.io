@@ -4,11 +4,11 @@ import { MemoryRouter } from "react-router-dom";
 import Plan from "./Plan";
 import { mockFetch, type Reply } from "@/test/fetch-mock";
 import { auth, fakeClient, resetFakeSupabase, signIn, state } from "@/test/fake-supabase";
-import { SIGN_OUT_SCOPE } from "@/lib/config";
+import { SIGN_OUT_EVERYWHERE_CONFIRM, SIGN_OUT_EVERYWHERE_FAILED } from "@/lib/config";
 
 const h = vi.hoisted(() => ({ opened: false, redirect: vi.fn() }));
 
-vi.mock("@/lib/supabase", () => ({ getSupabase: () => fakeClient }));
+vi.mock("@/lib/supabase", () => ({ getSupabase: () => fakeClient, SUPABASE_URL: "https://sb.test", SUPABASE_PUBLISHABLE_KEY: "pk" }));
 vi.mock("@/lib/redirect", () => ({ redirectTo: h.redirect }));
 vi.mock("@/lib/plans", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/plans")>()),
@@ -96,13 +96,105 @@ describe("/account/plan — signed out", () => {
     expect(screen.queryByText(/Call this number/)).toBeNull();
   });
 
-  it("signs out through the shared client", async () => {
+  it("Sign out ends this browser's session only", async () => {
     signIn();
     mockFetch({ "GET /user/profile": profile("free") });
     renderAt("/account/plan");
     fireEvent.click(await screen.findByText("Sign out"));
     expect(await screen.findByText("Continue with Google")).toBeTruthy();
-    expect(auth.signOut).toHaveBeenCalledWith({ scope: SIGN_OUT_SCOPE });
+    expect(auth.signOut).toHaveBeenCalledTimes(1);
+    expect(auth.signOut).toHaveBeenCalledWith({ scope: "local" });
+    expect(state.session).toBeNull();
+  });
+
+  it("Sign out everywhere asks first, revokes every session, then clears this browser", async () => {
+    signIn();
+    const { calls } = mockFetch({ "GET /user/profile": profile("free"), "POST /auth/v1/logout": { status: 204 } });
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out everywhere"));
+    expect(screen.getByText(SIGN_OUT_EVERYWHERE_CONFIRM)).toBeTruthy();
+    expect(SIGN_OUT_EVERYWHERE_CONFIRM).toBe("Signs you out of TruthScore on every device and browser.");
+    // Cancel backs out without signing out.
+    fireEvent.click(screen.getByText("Cancel"));
+    expect(screen.queryByText(SIGN_OUT_EVERYWHERE_CONFIRM)).toBeNull();
+    expect(calls.some((c) => c.url.includes("/logout"))).toBe(false);
+    fireEvent.click(screen.getByText("Sign out everywhere"));
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    const revoke = calls.find((c) => c.url.includes("/auth/v1/logout"))!;
+    expect(revoke.url).toBe("https://sb.test/auth/v1/logout?scope=global");
+    expect(revoke.init.headers).toMatchObject({ Authorization: "Bearer at", apikey: "pk" });
+    // Only after the global revoke: this browser's copy is cleared.
+    expect(auth.signOut).toHaveBeenCalledTimes(1);
+    expect(auth.signOut).toHaveBeenCalledWith({ scope: "local" });
+    expect(state.session).toBeNull();
+  });
+
+  it("a failed Sign out everywhere keeps the user signed in here and lets them retry", async () => {
+    signIn();
+    mockFetch({
+      "GET /user/profile": profile("free"),
+      "POST /auth/v1/logout": [{ status: 500, body: {} }, new Error("offline"), { status: 204 }],
+    });
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out everywhere"));
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText(SIGN_OUT_EVERYWHERE_FAILED)).toBeTruthy();
+    expect(SIGN_OUT_EVERYWHERE_FAILED).toBe("We couldn't sign you out on other devices. Sign in again and retry.");
+    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(state.session).not.toBeNull();
+    expect(screen.getByText("reader@example.com")).toBeTruthy();
+    // A network error is treated the same way.
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Sign out everywhere" })).toHaveProperty("disabled", false));
+    expect(state.session).not.toBeNull();
+    expect(auth.signOut).not.toHaveBeenCalled();
+    // Retry succeeds.
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    expect(state.session).toBeNull();
+  });
+
+  it("Sign out everywhere with no usable session fails and clears nothing", async () => {
+    signIn();
+    const { calls } = mockFetch({ "GET /user/profile": profile("free"), "POST /auth/v1/logout": { status: 204 } });
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out everywhere"));
+    state.session = null; // e.g. the refresh failed after the page loaded
+    fireEvent.click(screen.getByRole("button", { name: "Sign out everywhere" }));
+    expect(await screen.findByText(SIGN_OUT_EVERYWHERE_FAILED)).toBeTruthy();
+    expect(calls.some((c) => c.url.includes("/logout"))).toBe(false);
+    expect(auth.signOut).not.toHaveBeenCalled();
+  });
+
+  it("both sign-out buttons are disabled while one runs", async () => {
+    signIn();
+    let release: () => void = () => {};
+    mockFetch({
+      "GET /user/profile": profile("free"),
+      "POST /auth/v1/logout": () => ({ status: 204 }),
+    });
+    auth.signOut.mockImplementationOnce(() => new Promise((res) => { release = () => { state.session = null; res({ error: null }); }; }) as never);
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out everywhere"));
+    const everywhere = screen.getByRole("button", { name: "Sign out everywhere" });
+    fireEvent.click(screen.getByText("Sign out"));
+    expect(screen.getByText("Sign out").closest("button")!.disabled).toBe(true);
+    expect((everywhere as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText("Cancel").closest("button") as HTMLButtonElement).disabled).toBe(true);
+    release();
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+  });
+
+  it("drops this browser's session when the server sign-out fails", async () => {
+    signIn();
+    mockFetch({ "GET /user/profile": profile("free") });
+    auth.signOut.mockImplementationOnce(async () => ({ error: { message: "network" } }) as never);
+    renderAt("/account/plan");
+    fireEvent.click(await screen.findByText("Sign out"));
+    expect(await screen.findByText("Continue with Google")).toBeTruthy();
+    await waitFor(() => expect(auth.signOut).toHaveBeenCalledTimes(2));
+    expect(auth.signOut).toHaveBeenLastCalledWith({ scope: "local" });
   });
 });
 
