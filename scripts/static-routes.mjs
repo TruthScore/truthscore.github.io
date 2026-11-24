@@ -38,6 +38,18 @@ for (const route of PRERENDERED) {
 }
 rmSync("dist-ssr", { recursive: true, force: true });
 
+// M#83: Android App Links. Pages must publish these as plain files: the dot directory survives
+// only because the Pages artifact keeps it (and .nojekyll stops Jekyll dropping it), so fail the
+// build if either is missing or the JSON is broken.
+for (const f of [".nojekyll", ".well-known/assetlinks.json", "auth/callback.html"]) {
+  try {
+    readFileSync(join(DIST, f));
+  } catch {
+    throw new Error(`static-routes: dist/${f} missing (Android App Links, M#83)`);
+  }
+}
+JSON.parse(readFileSync(join(DIST, ".well-known", "assetlinks.json"), "utf8"));
+
 const urls = ROUTES.map((r) => `  <url><loc>${SITE}${r}</loc></url>`).join("\n");
 writeFileSync(
   join(DIST, "sitemap.xml"),
