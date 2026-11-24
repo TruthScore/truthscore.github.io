@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <title>Finish signing in · TruthScore</title>
+</head>
+<body>
+  <h1>Finish signing in</h1>
+  <p><a id="open" href="#">Open the TruthScore app</a></p>
+  <script>
+    // M#83: reached only when Android did not open the app for this App Link.
+    var q = location.search;
+    var a = document.getElementById('open');
+    a.href = /Android/i.test(navigator.userAgent)
+      ? 'intent://auth-callback' + q + '#Intent;scheme=ai.truthscore.app;package=com.adaptive.truthscore;end'
+      : 'ai.truthscore.app://auth-callback' + q;
+    history.replaceState(null, '', location.pathname);
+  </script>
+</body>
+</html>
